@@ -16,12 +16,10 @@ if __name__ == '__main__':
     #read gentree tax
     att_tree = read_tree()
     #read record
-    trans = read_data()
+    data = read_data()
     # remove duplicate items
-    for i in range(len(trans)):
-        trans[i] = list(set(trans[i]))
     print "Begin Partition"
-    result = partition(att_tree, trans, K)
+    result = mondrian(att_tree, data, K)
     # save_to_file(result)
     print "Finish Partition!!"
     # print "Begin Evaluation"
