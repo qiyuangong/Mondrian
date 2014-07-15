@@ -13,7 +13,7 @@ if __name__ == '__main__':
         K = int(sys.argv[1])
     except:
         pass
-    #read gentree tax
+    #read generalization hierarchies
     att_tree = read_tree()
     #read record
     data = read_data()

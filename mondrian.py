@@ -1,17 +1,19 @@
+#!/usr/bin/env python
+#coding=utf-8
 
+from partition import Partition
 
 global_QID_len = 10
 global_K = 0
 gl_result = []
-
-
-
+gl_att_trees = []
 
 
 def getNormalizedWidth(partition, index):
     """return Normalized width of partition
     similar to NCP
     """
+
     return 
 
 
@@ -63,10 +65,14 @@ def find_median(fs):
         print "Error: cannot find splitVal"
     return splitVal
 
+
 def allow_split(partition):
     return True
 
+
 def anonymize(partition):
+    """recursively partition groups until not allowable
+    """
     if allow_split(partition) == False:
         gl_result.append(partition)
         return
@@ -78,9 +84,15 @@ def anonymize(partition):
     splitVal = find_median(fs)
     index = value_list.index(splitVal)
 
-
-    lhs = 0 <= 
-    rhs = 0 >
+    lhs = Partition()
+    rhs = Partition()
+    for i, temp in enumerate(partition.member):
+        if i <= index:
+        # lhs = [low, means]
+            lhs.member.append(temp)
+        elif:
+        # rhs = (means, high)
+            rhs.member.append(temp)
     # anonymize sub-partition
     anonymize(lhs)
     anonymize(rhs)
