@@ -17,3 +17,8 @@ class Partition:
         self.value = []
         self.member = data
         self.splitable = True
+
+    def add_element(self, record):
+        self.member.append(record)
+
+    

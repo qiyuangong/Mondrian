@@ -6,15 +6,15 @@ from partition import Partition
 global_QID_len = 10
 global_K = 0
 gl_result = []
-gl_att_trees = []
+gl_att_ranges = []
 
 
 def getNormalizedWidth(partition, index):
     """return Normalized width of partition
     similar to NCP
     """
-
-    return 
+    width = partition.high - partition.low
+    return width / gl_att_ranges[index]
 
 
 
