@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 #coding=utf-8
 from mondrian import mondrian
-from utils.read_data import read_data, read_tree
-from utils.evaluation import average_relative_error
+from utils.read_data import read_data
 from utils.save_result import save_to_file
 import sys
 # Poulis set k=25, m=2 as default!
@@ -13,13 +12,11 @@ if __name__ == '__main__':
         K = int(sys.argv[1])
     except:
         pass
-    #read generalization hierarchies
-    att_tree = read_tree()
     #read record
     data = read_data()
     # remove duplicate items
     print "Begin Partition"
-    result = mondrian(att_tree, data, K)
+    result = mondrian(data, K)
     # save_to_file(result)
     print "Finish Partition!!"
     # print "Begin Evaluation"

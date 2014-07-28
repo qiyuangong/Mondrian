@@ -1,35 +1,104 @@
 #!/usr/bin/env python
 #coding=utf-8
 
-from partition import Partition
+import heapq
+import pdb
 
-global_QID_len = 10
-global_K = 0
+gl_QI_len = 10
+gl_K = 0
 gl_result = []
 gl_att_ranges = []
+gl_att_order = []
+
+
+class Partition:
+
+    """Class for Group, which is used to keep records 
+    Store tree node in instances.
+    self.member: records in group
+    self.low: lower point 
+    self.high: higher point 
+    """
+
+    def __init__(self, data=[], split_tuple=()):
+        """
+        split_tuple = (index, low, high)
+        """
+        self.low = [10000000000000]*gl_QI_len
+        self.high = [-1]*gl_QI_len
+        self.check = [0]*gl_QI_len
+        self.member = data
+        if len(split_tuple) > 0:
+            self.check[split_tuple[0]] = split_tuple[0]
+            self.low[split_tuple[0]] = split_tuple[1]
+            self.high = split_tuple[2]
+        for temp in self.member:
+            for index in range(gl_QI_len):
+                if self.check[index]:
+                    continue
+                pos = gl_att_order[index][temp[index]]
+                if pos < self.low[index]:
+                    self.low[index] = pos
+                elif pos > self.high[index]:
+                    self.high[index] = pos
+
+    def add_element(self, record):
+        """
+        """
+        self.member.append(record)
+
+    def get_bound(self):
+        """
+        get lower(low) and upper(high) bounds of members
+        """
+        for temp in self.member:
+            for index in gl_QI_len:
+                if self.check[index]:
+                    continue
+                pos = gl_att_order[i][temp[i]]
+                if pos < self.low[index]:
+                    self.low[index] = pos
+                elif pos > self.high[index]:
+                    self.high[index] = pos
+
+
+def static_values(data):
+    """sort all attributes, get order and range
+    """
+    att_values = []
+    for i in range(gl_QI_len):
+        att_values.append(set())
+        gl_att_order.append({})
+    for temp in data:
+        for i in range(gl_QI_len):
+            att_values[i].add(temp[i])
+    for i in range(gl_QI_len):
+        value_list = list(att_values[i])
+        gl_att_ranges.append(len(value_list))
+        value_list.sort()
+        for index, temp in enumerate(value_list):
+            gl_att_order[i][temp] = index
 
 
 def getNormalizedWidth(partition, index):
     """return Normalized width of partition
     similar to NCP
     """
-    width = partition.high - partition.low
-    return width / gl_att_ranges[index]
-
+    width = partition.high[index] - partition.low[index]
+    return width * 1.0 / gl_att_ranges[index]
 
 
 def choose_dimension(partition):
     """chooss dim with largest normWidth
     """
-    max_ncp = 0
+    max_with = 0
     max_dim = -1
-    for i in range(global_QID_len):
+    for i in range(gl_QI_len):
         normWidth = getNormalizedWidth(partition, i)
-        if normWidth > max_ncp:
-            max_ncp = normWidth
+        if normWidth > max_with:
+            max_with = normWidth
             max_dim = i
-    if max_dim != -1:
-        return max_dim
+    return max_dim
 
 
 def frequency_set(partition, dim):
@@ -37,23 +106,28 @@ def frequency_set(partition, dim):
     """
     value_set = set()
     frequency = {}
-    for record in partition:
-        if record[dim] in value_set:
-            frequency[record[dim]]++
-        else:
-            frequency[record[dim]] = 1
-    return (value_set, frequency_set)
+    for record in partition.member:
+        try:
+            if record[dim] in value_set:
+                frequency[record[dim]] += 1
+            else:
+                frequency[record[dim]] = 1
+                value_set.add(record[dim])
+        except:
+            pdb.set_trace()
+    return frequency
 
 
-def find_median(fs):
+def find_median(frequency):
     """find the middle of the partition, return splitVal
     """
     splitVal = ''
-    value_list = fs[0]
-    frequency = fs[1]
-    total = sum(frequency.keys())
+    value_list = frequency.keys()
+    value_list.sort()
+    total = sum(frequency.values())
     middle = total / 2
-    if middle < global_K:
+    if middle < gl_K:
+        print "Error: size of group less than 2*K"
         return ''
     index = 0
     for t in value_list:
@@ -66,42 +140,44 @@ def find_median(fs):
     return splitVal
 
 
-def allow_split(partition):
-    return True
-
-
 def anonymize(partition):
     """recursively partition groups until not allowable
     """
-    if allow_split(partition) == False:
+    if len(partition.member) >= 2*gl_K:
         gl_result.append(partition)
         return
     dim = choose_dimension(partition)
-    fs = frequency_set(partition, dim)
-    value_list = list(fs[0])
-    sort(value_list, cmp=node_cmp)
-    fs[0] = value_list
-    splitVal = find_median(fs)
-    index = value_list.index(splitVal)
-
-    lhs = Partition()
-    rhs = Partition()
-    for i, temp in enumerate(partition.member):
-        if i <= index:
-        # lhs = [low, means]
-            lhs.member.append(temp)
-        elif:
-        # rhs = (means, high)
-            rhs.member.append(temp)
+    if dim == -1:
+        print "Error: dim=-1"
+        pdb.set_trace()
+    frequency = frequency_set(partition, dim)
+    splitVal = find_median(frequency)
+    index = gl_att_order[dim][splitVal]
+    # (dim, partition.low[dim], gl_att_order[dim][splitVal])
+    lhs = []
+    # (dim, gl_att_order[dim][splitVal], partition.high[dim]
+    rhs = []
+    for temp in partition.member:
+        pos = gl_att_order[dim][temp[dim]]
+        if pos <= index:
+            # lhs = [low, means]
+            lhs.append(temp)
+        else:
+            # rhs = (means, high)
+            rhs.append(temp)
     # anonymize sub-partition
-    anonymize(lhs)
-    anonymize(rhs)
+    anonymize(Partition(lhs))
+    anonymize(Partition(rhs))
 
 
-def mondrian():
+def mondrian(data, K):
     """
     """
-    global global_K, global_QID_len, gl_result
+    global gl_K, gl_result, gl_QI_len
+    gl_QI_len = len(data[0])-1
+    gl_K = K
+    static_values(data)
+    partition = Partition(data)
     anonymize(partition)
 
     return gl_result
