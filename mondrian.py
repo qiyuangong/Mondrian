@@ -7,8 +7,9 @@ import pdb
 gl_QI_len = 10
 gl_K = 0
 gl_result = []
-gl_att_ranges = []
-gl_att_order = []
+gl_QI_ranges = []
+gl_QI_dict = []
+gl_QI_order = []
 
 
 class Partition:
@@ -36,16 +37,11 @@ class Partition:
             for index in range(gl_QI_len):
                 if self.check[index]:
                     continue
-                pos = gl_att_order[index][temp[index]]
+                pos = gl_QI_dict[index][temp[index]]
                 if pos < self.low[index]:
                     self.low[index] = pos
                 elif pos > self.high[index]:
                     self.high[index] = pos
-
-    def add_element(self, record):
-        """
-        """
-        self.member.append(record)
 
     def get_bound(self):
         """
@@ -55,12 +51,17 @@ class Partition:
             for index in gl_QI_len:
                 if self.check[index]:
                     continue
-                pos = gl_att_order[i][temp[i]]
+                pos = gl_QI_dict[i][temp[i]]
                 if pos < self.low[index]:
                     self.low[index] = pos
                 elif pos > self.high[index]:
                     self.high[index] = pos
 
+
+def cmp_str(element1, element2):
+    """compare number in str format correctley
+    """
+    return cmp(int(element1), int(element2))
 
 def static_values(data):
     """sort all attributes, get order and range
@@ -68,16 +69,17 @@ def static_values(data):
     att_values = []
     for i in range(gl_QI_len):
         att_values.append(set())
-        gl_att_order.append({})
+        gl_QI_dict.append({})
     for temp in data:
         for i in range(gl_QI_len):
             att_values[i].add(temp[i])
     for i in range(gl_QI_len):
         value_list = list(att_values[i])
-        gl_att_ranges.append(len(value_list))
-        value_list.sort()
+        gl_QI_ranges.append(len(value_list))
+        value_list.sort(cmp=cmp_str)
+        gl_QI_order.append(value_list[:])
         for index, temp in enumerate(value_list):
-            gl_att_order[i][temp] = index
+            gl_QI_dict[i][temp] = index
 
 
 def getNormalizedWidth(partition, index):
@@ -85,7 +87,7 @@ def getNormalizedWidth(partition, index):
     similar to NCP
     """
     width = partition.high[index] - partition.low[index]
-    return width * 1.0 / gl_att_ranges[index]
+    return width * 1.0 / gl_QI_ranges[index]
 
 
 def choose_dimension(partition):
@@ -123,7 +125,7 @@ def find_median(frequency):
     """
     splitVal = ''
     value_list = frequency.keys()
-    value_list.sort()
+    value_list.sort(cmp=cmp_str)
     total = sum(frequency.values())
     middle = total / 2
     if middle < gl_K:
@@ -152,13 +154,13 @@ def anonymize(partition):
         pdb.set_trace()
     frequency = frequency_set(partition, dim)
     splitVal = find_median(frequency)
-    index = gl_att_order[dim][splitVal]
-    # (dim, partition.low[dim], gl_att_order[dim][splitVal])
+    index = gl_QI_dict[dim][splitVal]
+    # (dim, partition.low[dim], gl_QI_dict[dim][splitVal])
     lhs = []
-    # (dim, gl_att_order[dim][splitVal], partition.high[dim]
+    # (dim, gl_QI_dict[dim][splitVal], partition.high[dim]
     rhs = []
     for temp in partition.member:
-        pos = gl_att_order[dim][temp[dim]]
+        pos = gl_QI_dict[dim][temp[dim]]
         if pos <= index:
             # lhs = [low, means]
             lhs.append(temp)
@@ -176,8 +178,20 @@ def mondrian(data, K):
     global gl_K, gl_result, gl_QI_len
     gl_QI_len = len(data[0])-1
     gl_K = K
+    gl_result = []
+    result = []
     static_values(data)
     partition = Partition(data)
     anonymize(partition)
-
-    return gl_result
+    for p in gl_result:
+        for temp in p.member:
+            for index in range(gl_QI_len):
+                if type(temp[index]) == int:
+                    temp[index] = '%d,%d' % (gl_QI_order[index][partition.low[index]], \
+                        gl_QI_order[index][partition.high[index]])
+                elif type(temp[index]) == str:
+                    temp[index] = gl_QI_order[index][partition.low[index]] + ',' + \
+                        gl_QI_order[index][partition.high[index]]
+        result.append(temp)
+    pdb.set_trace()
+    return result

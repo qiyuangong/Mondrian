@@ -25,8 +25,8 @@ def save_to_file(result, flag=0):
         file_result = open(file_path + file_name,'wb')
         pickle.dump(result, file_result)
     file_result.close()
-    try:
-        ftp_upload(file_name, file_path)
-    except:
-        print "Upload Fail!"
+    # try:
+    #     ftp_upload(file_name, file_path)
+    # except:
+    #     print "Upload Fail!"
     print "Save Complete!"
