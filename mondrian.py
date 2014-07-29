@@ -134,15 +134,14 @@ def find_median(frequency):
     if middle < gl_K:
         print "Error: size of group less than 2*K"
         return ''
-    if __DEBUG:
-        print 'total = %d' % total
-        print 'middle = %d' % middle
-        pdb.set_trace()
+    # if __DEBUG:
+    #     print 'total = %d' % total
+    #     print 'middle = %d' % middle
+    #     pdb.set_trace()
     index = 0
     for t in value_list:
-        if index < middle:
-            index += frequency[t]
-        else:
+        index += frequency[t]
+        if index >= middle:
             splitVal = t
             break
     else:
@@ -162,6 +161,9 @@ def anonymize(partition):
         pdb.set_trace()
     frequency = frequency_set(partition, dim)
     splitVal = find_median(frequency)
+    if splitVal == '':
+        print "Error: splitVal= null"
+        pdb.set_trace()
     middle = gl_QI_dict[dim][splitVal]
     # (dim, partition.low[dim], gl_QI_dict[dim][splitVal])
     lhs = []
@@ -175,6 +177,9 @@ def anonymize(partition):
         else:
             # rhs = (means, high)
             rhs.append(temp)
+    if len(lhs) < gl_K or len(rhs) < gl_K:
+        gl_result.append(partition)
+        return
     # anonymize sub-partition
     anonymize(Partition(lhs))
     anonymize(Partition(rhs))
@@ -203,6 +208,6 @@ def mondrian(data, K):
         result.append(temp)
     if __DEBUG:
         print "size of partitions"
-        print [len(t) for t in gl_result]
+        print [len(t.member) for t in gl_result]
         pdb.set_trace()
     return result
