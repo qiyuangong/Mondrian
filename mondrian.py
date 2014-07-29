@@ -4,6 +4,8 @@
 import heapq
 import pdb
 
+
+__DEBUG = True
 gl_QI_len = 10
 gl_K = 0
 gl_result = []
@@ -21,22 +23,20 @@ class Partition:
     self.high: higher point 
     """
 
-    def __init__(self, data=[], split_tuple=()):
+    def __init__(self, data):
         """
         split_tuple = (index, low, high)
         """
         self.low = [10000000000000]*gl_QI_len
         self.high = [-1]*gl_QI_len
         self.check = [0]*gl_QI_len
-        self.member = data
-        if len(split_tuple) > 0:
-            self.check[split_tuple[0]] = split_tuple[0]
-            self.low[split_tuple[0]] = split_tuple[1]
-            self.high = split_tuple[2]
+        self.member = data[:]
+        # if len(split_tuple) > 0:
+        #     self.check[split_tuple[0]] = split_tuple[0]
+        #     self.low[split_tuple[0]] = split_tuple[1]
+        #     self.high = split_tuple[2]
         for temp in self.member:
             for index in range(gl_QI_len):
-                if self.check[index]:
-                    continue
                 pos = gl_QI_dict[index][temp[index]]
                 if pos < self.low[index]:
                     self.low[index] = pos
@@ -93,13 +93,16 @@ def getNormalizedWidth(partition, index):
 def choose_dimension(partition):
     """chooss dim with largest normWidth
     """
-    max_with = 0
+    # max_wi
+    max_witdh = -1
     max_dim = -1
     for i in range(gl_QI_len):
         normWidth = getNormalizedWidth(partition, i)
-        if normWidth > max_with:
-            max_with = normWidth
+        if normWidth > max_witdh:
+            max_witdh = normWidth
             max_dim = i
+    # if __DEBUG and max_witdh == 0:
+    #     print "all QI values are equal"
     return max_dim
 
 
@@ -131,10 +134,15 @@ def find_median(frequency):
     if middle < gl_K:
         print "Error: size of group less than 2*K"
         return ''
+    if __DEBUG:
+        print 'total = %d' % total
+        print 'middle = %d' % middle
+        pdb.set_trace()
     index = 0
     for t in value_list:
         if index < middle:
             index += frequency[t]
+        else:
             splitVal = t
             break
     else:
@@ -145,7 +153,7 @@ def find_median(frequency):
 def anonymize(partition):
     """recursively partition groups until not allowable
     """
-    if len(partition.member) >= 2*gl_K:
+    if len(partition.member) < 2*gl_K:
         gl_result.append(partition)
         return
     dim = choose_dimension(partition)
@@ -154,14 +162,14 @@ def anonymize(partition):
         pdb.set_trace()
     frequency = frequency_set(partition, dim)
     splitVal = find_median(frequency)
-    index = gl_QI_dict[dim][splitVal]
+    middle = gl_QI_dict[dim][splitVal]
     # (dim, partition.low[dim], gl_QI_dict[dim][splitVal])
     lhs = []
     # (dim, gl_QI_dict[dim][splitVal], partition.high[dim]
     rhs = []
     for temp in partition.member:
         pos = gl_QI_dict[dim][temp[dim]]
-        if pos <= index:
+        if pos <= middle:
             # lhs = [low, means]
             lhs.append(temp)
         else:
@@ -193,5 +201,8 @@ def mondrian(data, K):
                     temp[index] = gl_QI_order[index][partition.low[index]] + ',' + \
                         gl_QI_order[index][partition.high[index]]
         result.append(temp)
-    pdb.set_trace()
+    if __DEBUG:
+        print "size of partitions"
+        print [len(t) for t in gl_result]
+        pdb.set_trace()
     return result
