@@ -57,11 +57,11 @@ class Partition:
                 elif pos > self.high[index]:
                     self.high[index] = pos
 
-
 def cmp_str(element1, element2):
     """compare number in str format correctley
     """
     return cmp(int(element1), int(element2))
+
 
 def static_values(data):
     """sort all attributes, get order and range
@@ -193,21 +193,31 @@ def mondrian(data, K):
     gl_K = K
     gl_result = []
     result = []
+    data_size = len(data)
     static_values(data)
     partition = Partition(data)
     anonymize(partition)
+    ncp = 0.0
     for p in gl_result:
+        rncp = 0
+        for index in range(gl_QI_len):
+            rncp += getNormalizedWidth(p, index)
+        rncp *= len(p.member)
+        ncp += rncp
         for temp in p.member:
             for index in range(gl_QI_len):
                 if type(temp[index]) == int:
-                    temp[index] = '%d,%d' % (gl_QI_order[index][partition.low[index]], \
-                        gl_QI_order[index][partition.high[index]])
+                    temp[index] = '%d,%d' % (gl_QI_order[index][p.low[index]], \
+                        gl_QI_order[index][p.high[index]])
                 elif type(temp[index]) == str:
-                    temp[index] = gl_QI_order[index][partition.low[index]] + ',' + \
-                        gl_QI_order[index][partition.high[index]]
-        result.append(temp)
+                    temp[index] = gl_QI_order[index][p.low[index]] + ',' + \
+                        gl_QI_order[index][p.high[index]]
+            result.append(temp)
+    ncp /= gl_QI_len
+    ncp /= data_size
     if __DEBUG:
         print "size of partitions"
         print [len(t.member) for t in gl_result]
-        pdb.set_trace()
+        print "NCP = %.2f %%" % ncp
+        # pdb.set_trace()
     return result
