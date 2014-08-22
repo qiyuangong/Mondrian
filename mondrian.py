@@ -29,7 +29,7 @@ class Partition:
         """
         self.low = [10000000000000]*gl_QI_len
         self.high = [-1]*gl_QI_len
-        self.check = [0]*gl_QI_len
+        self.allow = [0]*gl_QI_len
         self.member = data[:]
         # if len(split_tuple) > 0:
         #     self.check[split_tuple[0]] = split_tuple[0]
@@ -43,19 +43,6 @@ class Partition:
                 elif pos > self.high[index]:
                     self.high[index] = pos
 
-    def get_bound(self):
-        """
-        get lower(low) and upper(high) bounds of members
-        """
-        for temp in self.member:
-            for index in gl_QI_len:
-                if self.check[index]:
-                    continue
-                pos = gl_QI_dict[i][temp[i]]
-                if pos < self.low[index]:
-                    self.low[index] = pos
-                elif pos > self.high[index]:
-                    self.high[index] = pos
 
 def cmp_str(element1, element2):
     """compare number in str format correctley
@@ -155,34 +142,37 @@ def anonymize(partition):
     if len(partition.member) < 2*gl_K:
         gl_result.append(partition)
         return
-    dim = choose_dimension(partition)
-    if dim == -1:
-        print "Error: dim=-1"
-        pdb.set_trace()
-    frequency = frequency_set(partition, dim)
-    splitVal = find_median(frequency)
-    if splitVal == '':
-        print "Error: splitVal= null"
-        pdb.set_trace()
-    middle = gl_QI_dict[dim][splitVal]
-    # (dim, partition.low[dim], gl_QI_dict[dim][splitVal])
-    lhs = []
-    # (dim, gl_QI_dict[dim][splitVal], partition.high[dim]
-    rhs = []
-    for temp in partition.member:
-        pos = gl_QI_dict[dim][temp[dim]]
-        if pos <= middle:
-            # lhs = [low, means]
-            lhs.append(temp)
-        else:
-            # rhs = (means, high)
-            rhs.append(temp)
-    if len(lhs) < gl_K or len(rhs) < gl_K:
-        gl_result.append(partition)
+    for i in range(gl_QI_len):
+        dim = choose_dimension(partition)
+        if dim == -1:
+            print "Error: dim=-1"
+            pdb.set_trace()
+        frequency = frequency_set(partition, dim)
+        splitVal = find_median(frequency)
+        if splitVal == '':
+            print "Error: splitVal= null"
+            pdb.set_trace()
+        middle = gl_QI_dict[dim][splitVal]
+        # (dim, partition.low[dim], gl_QI_dict[dim][splitVal])
+        lhs = []
+        # (dim, gl_QI_dict[dim][splitVal], partition.high[dim]
+        rhs = []
+        for temp in partition.member:
+            pos = gl_QI_dict[dim][temp[dim]]
+            if pos <= middle:
+                # lhs = [low, means]
+                lhs.append(temp)
+            else:
+                # rhs = (means, high)
+                rhs.append(temp)
+        if len(lhs) < gl_K or len(rhs) < gl_K:
+            partition.allow[dim] = 1
+            return
+        # anonymize sub-partition
+        anonymize(Partition(lhs))
+        anonymize(Partition(rhs))
         return
-    # anonymize sub-partition
-    anonymize(Partition(lhs))
-    anonymize(Partition(rhs))
+    gl_result.append(partition)
 
 
 def mondrian(data, K):
