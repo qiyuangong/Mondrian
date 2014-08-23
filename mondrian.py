@@ -16,11 +16,11 @@ gl_QI_order = []
 
 class Partition:
 
-    """Class for Group, which is used to keep records 
+    """Class for Group, which is used to keep records
     Store tree node in instances.
     self.member: records in group
-    self.low: lower point 
-    self.high: higher point 
+    self.low: lower point
+    self.high: higher point
     """
 
     def __init__(self, data):
@@ -189,7 +189,7 @@ def mondrian(data, K):
     anonymize(partition)
     ncp = 0.0
     for p in gl_result:
-        rncp = 0
+        rncp = 0.0
         for index in range(gl_QI_len):
             rncp += getNormalizedWidth(p, index)
         rncp *= len(p.member)
@@ -205,6 +205,7 @@ def mondrian(data, K):
             result.append(temp)
     ncp /= gl_QI_len
     ncp /= data_size
+    ncp *= 100
     if __DEBUG:
         print "size of partitions"
         print [len(t.member) for t in gl_result]
