@@ -23,13 +23,16 @@ class Partition:
     self.high: higher point
     """
 
-    def __init__(self, data):
+    def __init__(self, data, allow=None):
         """
         split_tuple = (index, low, high)
         """
         self.low = [10000000000000]*gl_QI_len
         self.high = [-1]*gl_QI_len
-        self.allow = [0]*gl_QI_len
+        if allow == None:
+            self.allow = [1]*gl_QI_len
+        else:
+            self.allow = allow[:]
         self.member = data[:]
         # if len(split_tuple) > 0:
         #     self.check[split_tuple[0]] = split_tuple[0]
@@ -84,12 +87,14 @@ def choose_dimension(partition):
     max_witdh = -1
     max_dim = -1
     for i in range(gl_QI_len):
+        if partition.allow[i] == 0:
+            continue
         normWidth = getNormalizedWidth(partition, i)
         if normWidth > max_witdh:
             max_witdh = normWidth
             max_dim = i
-    # if __DEBUG and max_witdh == 0:
-    #     print "all QI values are equal"
+    if max_witdh > 1:
+        pdb.set_trace()
     return max_dim
 
 
@@ -139,10 +144,12 @@ def find_median(frequency):
 def anonymize(partition):
     """recursively partition groups until not allowable
     """
-    if len(partition.member) < 2*gl_K:
+    if len(partition.member) < 2*gl_K or sum(partition.allow) == 0:
         gl_result.append(partition)
         return
-    for i in range(gl_QI_len):
+    for index in range(gl_QI_len):
+        if sum(partition.allow) == 0:
+            break
         dim = choose_dimension(partition)
         if dim == -1:
             print "Error: dim=-1"
@@ -166,11 +173,11 @@ def anonymize(partition):
                 # rhs = (means, high)
                 rhs.append(temp)
         if len(lhs) < gl_K or len(rhs) < gl_K:
-            partition.allow[dim] = 1
-            return
+            partition.allow[dim] = 0
+            continue
         # anonymize sub-partition
-        anonymize(Partition(lhs))
-        anonymize(Partition(rhs))
+        anonymize(Partition(lhs, partition.allow))
+        anonymize(Partition(rhs, partition.allow))
         return
     gl_result.append(partition)
 
