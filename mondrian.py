@@ -23,28 +23,17 @@ class Partition:
     self.high: higher point
     """
 
-    def __init__(self, data, allow=None):
+    def __init__(self, data, low, high, allow=None):
         """
         split_tuple = (index, low, high)
         """
-        self.low = [10000000000000]*gl_QI_len
-        self.high = [-1]*gl_QI_len
+        self.low = low[:]
+        self.high = high[:]
         if allow == None:
             self.allow = [1]*gl_QI_len
         else:
             self.allow = allow[:]
         self.member = data[:]
-        # if len(split_tuple) > 0:
-        #     self.check[split_tuple[0]] = split_tuple[0]
-        #     self.low[split_tuple[0]] = split_tuple[1]
-        #     self.high = split_tuple[2]
-        for temp in self.member:
-            for index in range(gl_QI_len):
-                pos = gl_QI_dict[index][temp[index]]
-                if pos < self.low[index]:
-                    self.low[index] = pos
-                elif pos > self.high[index]:
-                    self.high[index] = pos
 
 
 def cmp_str(element1, element2):
@@ -56,6 +45,7 @@ def cmp_str(element1, element2):
 def static_values(data):
     """sort all attributes, get order and range
     """
+    global gl_QI_dict, gl_QI_ranges, gl_QI_order
     att_values = []
     for i in range(gl_QI_len):
         att_values.append(set())
@@ -119,6 +109,7 @@ def find_median(frequency):
     """find the middle of the partition, return splitVal
     """
     splitVal = ''
+    nextVal = ''
     value_list = frequency.keys()
     value_list.sort(cmp=cmp_str)
     total = sum(frequency.values())
@@ -131,14 +122,20 @@ def find_median(frequency):
     #     print 'middle = %d' % middle
     #     pdb.set_trace()
     index = 0
-    for t in value_list:
+    split_index = 0
+    for i, t in enumerate(value_list):
         index += frequency[t]
         if index >= middle:
             splitVal = t
+            split_index = i
             break
     else:
         print "Error: cannot find splitVal"
-    return splitVal
+    try:
+        nextVal = value_list[split_index+1]
+    except:
+        nextVal = ''
+    return (splitVal, nextVal)
 
 
 def anonymize(partition):
@@ -150,19 +147,24 @@ def anonymize(partition):
     for index in range(gl_QI_len):
         if sum(partition.allow) == 0:
             break
+        plow = partition.low
+        phigh = partition.high
         dim = choose_dimension(partition)
         if dim == -1:
             print "Error: dim=-1"
             pdb.set_trace()
         frequency = frequency_set(partition, dim)
-        splitVal = find_median(frequency)
-        if splitVal == '':
-            print "Error: splitVal= null"
-            pdb.set_trace()
+        (splitVal, nextVal) = find_median(frequency)
+        if splitVal == '' or nextVal == '':
+            partition.allow[dim] = 0
+            continue
+        # pdb.set_trace()
         middle = gl_QI_dict[dim][splitVal]
-        # (dim, partition.low[dim], gl_QI_dict[dim][splitVal])
+        lhigh = phigh[:]
+        lhigh[dim] = middle
+        rlow = plow[:]
+        rlow[dim] = gl_QI_dict[dim][nextVal]
         lhs = []
-        # (dim, gl_QI_dict[dim][splitVal], partition.high[dim]
         rhs = []
         for temp in partition.member:
             pos = gl_QI_dict[dim][temp[dim]]
@@ -170,14 +172,15 @@ def anonymize(partition):
                 # lhs = [low, means]
                 lhs.append(temp)
             else:
-                # rhs = (means, high)
+                # rhs = (means, high]
                 rhs.append(temp)
+        # pdb.set_trace()
         if len(lhs) < gl_K or len(rhs) < gl_K:
             partition.allow[dim] = 0
             continue
         # anonymize sub-partition
-        anonymize(Partition(lhs, partition.allow))
-        anonymize(Partition(rhs, partition.allow))
+        anonymize(Partition(lhs, plow, lhigh))
+        anonymize(Partition(rhs, rlow, phigh))
         return
     gl_result.append(partition)
 
@@ -192,7 +195,9 @@ def mondrian(data, K):
     result = []
     data_size = len(data)
     static_values(data)
-    partition = Partition(data)
+    low = [0] * gl_QI_len
+    high = [(t-1) for t in gl_QI_ranges]
+    partition = Partition(data, low, high)
     anonymize(partition)
     ncp = 0.0
     for p in gl_result:
@@ -217,5 +222,5 @@ def mondrian(data, K):
         print "size of partitions"
         print [len(t.member) for t in gl_result]
         print "NCP = %.2f %%" % ncp
-        # pdb.set_trace()
+        pdb.set_trace()
     return result
