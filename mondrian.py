@@ -73,7 +73,7 @@ def getNormalizedWidth(partition, index):
 def choose_dimension(partition):
     """chooss dim with largest normWidth
     """
-    # max_wi
+    # max_width
     max_witdh = -1
     max_dim = -1
     for i in range(gl_QI_len):
@@ -116,11 +116,7 @@ def find_median(frequency):
     middle = total / 2
     if middle < gl_K:
         print "Error: size of group less than 2*K"
-        return ''
-    # if __DEBUG:
-    #     print 'total = %d' % total
-    #     print 'middle = %d' % middle
-    #     pdb.set_trace()
+        return ('', '')
     index = 0
     split_index = 0
     for i, t in enumerate(value_list):
@@ -141,12 +137,11 @@ def find_median(frequency):
 def anonymize(partition):
     """recursively partition groups until not allowable
     """
-    if len(partition.member) < 2*gl_K or sum(partition.allow) == 0:
+    if len(partition.member) < 2*gl_K:
         gl_result.append(partition)
         return
-    for index in range(gl_QI_len):
-        if sum(partition.allow) == 0:
-            break
+    allow_count = sum(partition.allow)
+    for index in range(allow_count):
         plow = partition.low
         phigh = partition.high
         dim = choose_dimension(partition)
@@ -159,20 +154,20 @@ def anonymize(partition):
             partition.allow[dim] = 0
             continue
         # pdb.set_trace()
-        middle = gl_QI_dict[dim][splitVal]
+        mean = gl_QI_dict[dim][splitVal]
         lhigh = phigh[:]
-        lhigh[dim] = middle
         rlow = plow[:]
+        lhigh[dim] = mean
         rlow[dim] = gl_QI_dict[dim][nextVal]
         lhs = []
         rhs = []
         for temp in partition.member:
             pos = gl_QI_dict[dim][temp[dim]]
-            if pos <= middle:
-                # lhs = [low, means]
+            if pos <= mean:
+                # lhs = [low, mean]
                 lhs.append(temp)
             else:
-                # rhs = (means, high]
+                # rhs = (mean, high]
                 rhs.append(temp)
         # pdb.set_trace()
         if len(lhs) < gl_K or len(rhs) < gl_K:
@@ -181,6 +176,8 @@ def anonymize(partition):
         # anonymize sub-partition
         anonymize(Partition(lhs, plow, lhigh))
         anonymize(Partition(rhs, rlow, phigh))
+        # anonymize(Partition(lhs, plow, lhigh, partition.allow))
+        # anonymize(Partition(rhs, rlow, phigh, partition.allow))
         return
     gl_result.append(partition)
 
