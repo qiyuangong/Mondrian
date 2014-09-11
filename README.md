@@ -12,6 +12,12 @@ I decided to make some effort. Hoping these open source repositories can help re
 ## For more information:
 [1]  LeFevre, Kristen, David J. DeWitt, and Raghu Ramakrishnan. Mondrian multidimensional k-anonymity. Data Engineering, 2006. ICDE'06. Proceedings of the 22nd International Conference on. IEEE, 2006.
 
+==========================
+by Qiyuan Gong
+qiyuangong@gmail.com
+
+2014-09-11
+
 [2] [UTD Anonymization Toolbox](http://cs.utdallas.edu/dspl/cgi-bin/toolbox/index.php?go=home)
 
 [3] [ARX- Powerful Data Anonymization](https://github.com/arx-deidentifier/arx)

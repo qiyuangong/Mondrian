@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 #coding=utf-8
 
+#Implemented by Qiyuan Gong
+#qiyuangong@gmail.com
+#2014-09-11
+
 import heapq
 import pdb
 
@@ -176,8 +180,6 @@ def anonymize(partition):
         # anonymize sub-partition
         anonymize(Partition(lhs, plow, lhigh))
         anonymize(Partition(rhs, rlow, phigh))
-        # anonymize(Partition(lhs, plow, lhigh, partition.allow))
-        # anonymize(Partition(rhs, rlow, phigh, partition.allow))
         return
     gl_result.append(partition)
 
