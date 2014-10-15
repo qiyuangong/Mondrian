@@ -5,7 +5,6 @@
 #qiyuangong@gmail.com
 #2014-09-11
 
-import heapq
 import pdb
 
 
@@ -27,16 +26,16 @@ class Partition:
     self.high: higher point
     """
 
-    def __init__(self, data, low, high, allow=None):
+    def __init__(self, data, low, high):
         """
         split_tuple = (index, low, high)
         """
         self.low = low[:]
         self.high = high[:]
-        if allow == None:
-            self.allow = [1]*gl_QI_len
-        else:
-            self.allow = allow[:]
+        # We found that allow should not be inherited 
+        # in any case (both numeric and catogoric), or 
+        # some group will not be well splited.
+        self.allow = [1]*gl_QI_len
         self.member = data[:]
 
 
@@ -75,9 +74,9 @@ def getNormalizedWidth(partition, index):
 
 
 def choose_dimension(partition):
-    """chooss dim with largest normWidth
+    """chooss dim with largest normWidth from all attributes.
+    This function can be upgraded with other distance function.
     """
-    # max_width
     max_witdh = -1
     max_dim = -1
     for i in range(gl_QI_len):
@@ -145,19 +144,22 @@ def anonymize(partition):
         gl_result.append(partition)
         return
     allow_count = sum(partition.allow)
+    # only run allow_count times
     for index in range(allow_count):
+        # choose attrubite from domain
         plow = partition.low
         phigh = partition.high
         dim = choose_dimension(partition)
         if dim == -1:
             print "Error: dim=-1"
             pdb.set_trace()
+        # use frequency set to get median
         frequency = frequency_set(partition, dim)
         (splitVal, nextVal) = find_median(frequency)
         if splitVal == '' or nextVal == '':
             partition.allow[dim] = 0
             continue
-        # pdb.set_trace()
+        # split the group from median
         mean = gl_QI_dict[dim][splitVal]
         lhigh = phigh[:]
         rlow = plow[:]
@@ -173,7 +175,6 @@ def anonymize(partition):
             else:
                 # rhs = (mean, high]
                 rhs.append(temp)
-        # pdb.set_trace()
         if len(lhs) < gl_K or len(rhs) < gl_K:
             partition.allow[dim] = 0
             continue
@@ -188,6 +189,7 @@ def mondrian(data, K):
     """
     """
     global gl_K, gl_result, gl_QI_len
+    # initialization
     gl_QI_len = len(data[0])-1
     gl_K = K
     gl_result = []
@@ -197,7 +199,10 @@ def mondrian(data, K):
     low = [0] * gl_QI_len
     high = [(t-1) for t in gl_QI_ranges]
     partition = Partition(data, low, high)
+    # begin mondrian
     anonymize(partition)
+    # generalization result and 
+    # evaluation information loss
     ncp = 0.0
     for p in gl_result:
         rncp = 0.0
