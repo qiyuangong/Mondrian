@@ -94,17 +94,12 @@ def choose_dimension(partition):
 def frequency_set(partition, dim):
     """get the frequency_set of partition on dim
     """
-    value_set = set()
     frequency = {}
     for record in partition.member:
         try:
-            if record[dim] in value_set:
-                frequency[record[dim]] += 1
-            else:
-                frequency[record[dim]] = 1
-                value_set.add(record[dim])
+            frequency[record[dim]] += 1
         except:
-            pdb.set_trace()
+            frequency[record[dim]] = 1
     return frequency
 
 
@@ -223,8 +218,8 @@ def mondrian(data, K):
     ncp /= data_size
     ncp *= 100
     if __DEBUG:
-        print "size of partitions"
-        print [len(t.member) for t in gl_result]
+        print "size of partitions=%d" % len(gl_result)
+        # print [len(t.member) for t in gl_result]
         print "NCP = %.2f %%" % ncp
-        pdb.set_trace()
+        # pdb.set_trace()
     return result

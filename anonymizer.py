@@ -15,6 +15,6 @@ if __name__ == '__main__':
     #read record
     data = read_data()
     # remove duplicate items
-    print "Begin Partition"
+    print "Begin Mondrian"
     result = mondrian(data, K)
-    print "Finish Partition!!"
+    print "Finish Mondrian!!"

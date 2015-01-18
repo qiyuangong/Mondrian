@@ -24,8 +24,8 @@ def read_data():
     read microda for *.txt and return read data
     """
     data = []
-    userfile = open('data/demographics05test.csv', 'rU')
-    conditionfile = open('data/conditions05.csv', 'rU')
+    userfile = open('data/demographics.csv', 'rU')
+    conditionfile = open('data/conditions.csv', 'rU')
     userdata = {}
     # We selet 3,4,5,6,13,15,15 att from demographics05, and 2 from condition05
     print "Reading Data..."
