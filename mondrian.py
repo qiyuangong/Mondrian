@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-#coding=utf-8
+# coding=utf-8
 
-#Implemented by Qiyuan Gong
-#qiyuangong@gmail.com
-#2014-09-11
+# Implemented by Qiyuan Gong
+# qiyuangong@gmail.com
+# 2014-09-11
 
 import pdb
 
@@ -32,17 +32,20 @@ class Partition:
         """
         self.low = low[:]
         self.high = high[:]
-        # We found that allow should not be inherited 
-        # in any case (both numeric and catogoric), or 
+        # We found that allow should not be inherited
+        # in any case (both numeric and catogoric), or
         # some group will not be well splited.
-        self.allow = [1]*gl_QI_len
+        self.allow = [1] * gl_QI_len
         self.member = data[:]
 
 
 def cmp_str(element1, element2):
     """compare number in str format correctley
     """
-    return cmp(int(element1), int(element2))
+    try:
+        return cmp(int(element1), int(element2))
+    except:
+        return cmp(element1, element2)
 
 
 def static_values(data):
@@ -126,7 +129,7 @@ def find_median(frequency):
     else:
         print "Error: cannot find splitVal"
     try:
-        nextVal = value_list[split_index+1]
+        nextVal = value_list[split_index + 1]
     except:
         nextVal = ''
     return (splitVal, nextVal)
@@ -135,7 +138,7 @@ def find_median(frequency):
 def anonymize(partition):
     """recursively partition groups until not allowable
     """
-    if len(partition.member) < 2*gl_K:
+    if len(partition.member) < 2 * gl_K:
         gl_result.append(partition)
         return
     allow_count = sum(partition.allow)
@@ -185,18 +188,18 @@ def mondrian(data, K):
     """
     global gl_K, gl_result, gl_QI_len
     # initialization
-    gl_QI_len = len(data[0])-1
+    gl_QI_len = len(data[0]) - 1
     gl_K = K
     gl_result = []
     result = []
     data_size = len(data)
     static_values(data)
     low = [0] * gl_QI_len
-    high = [(t-1) for t in gl_QI_ranges]
+    high = [(t - 1) for t in gl_QI_ranges]
     partition = Partition(data, low, high)
     # begin mondrian
     anonymize(partition)
-    # generalization result and 
+    # generalization result and
     # evaluation information loss
     ncp = 0.0
     for p in gl_result:
@@ -208,11 +211,10 @@ def mondrian(data, K):
         for temp in p.member:
             for index in range(gl_QI_len):
                 if type(temp[index]) == int:
-                    temp[index] = '%d,%d' % (gl_QI_order[index][p.low[index]], \
-                        gl_QI_order[index][p.high[index]])
+                    temp[index] = '%d,%d' % (gl_QI_order[index][p.low[index]],
+                                             gl_QI_order[index][p.high[index]])
                 elif type(temp[index]) == str:
-                    temp[index] = gl_QI_order[index][p.low[index]] + ',' + \
-                        gl_QI_order[index][p.high[index]]
+                    temp[index] = gl_QI_order[index][p.low[index]] + ',' + gl_QI_order[index][p.high[index]]
             result.append(temp)
     ncp /= gl_QI_len
     ncp /= data_size

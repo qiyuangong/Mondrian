@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding=utf-8
+# coding=utf-8
 
 # Read data and read tree fuctions for INFORMS data
 # user att ['DUID','PID','DUPERSID','DOBMM','DOBYY','SEX','RACEX','RACEAX','RACEBX','RACEWX','RACETHNX','HISPANX','HISPCAT','EDUCYEAR','Year','marry','income','poverty']
@@ -8,10 +8,11 @@
 import heapq
 
 __DEBUG = False
-gl_useratt = ['DUID','PID','DUPERSID','DOBMM','DOBYY','SEX','RACEX','RACEAX','RACEBX','RACEWX','RACETHNX','HISPANX','HISPCAT','EDUCYEAR','Year','marry','income','poverty']
-gl_conditionatt = ['DUID','DUPERSID','ICD9CODX','year']
+gl_useratt = ['DUID', 'PID', 'DUPERSID', 'DOBMM', 'DOBYY', 'SEX', 'RACEX', 'RACEAX', 'RACEBX', 'RACEWX', 'RACETHNX',
+              'HISPANX', 'HISPCAT', 'EDUCYEAR', 'Year', 'marry', 'income', 'poverty']
+gl_conditionatt = ['DUID', 'DUPERSID', 'ICD9CODX', 'year']
 # Only 5 relational attributes and 1 transaction attribute are selected (according to Poulis's paper)
-gl_attlist = [3,4,6,13,16]
+gl_attlist = [3, 4, 6, 13, 16]
 
 gl_att_ranges = []
 gl_att_order = []
@@ -69,7 +70,3 @@ def read_data():
     userfile.close()
     conditionfile.close()
     return data
-
-
-
-

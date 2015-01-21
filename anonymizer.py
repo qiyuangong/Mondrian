@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#coding=utf-8
+# coding=utf-8
 from mondrian import mondrian
 from utils.read_data import read_data
 import sys
@@ -12,7 +12,7 @@ if __name__ == '__main__':
         K = int(sys.argv[1])
     except:
         pass
-    #read record
+    # read record
     data = read_data()
     # remove duplicate items
     print "Begin Mondrian"
