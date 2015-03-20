@@ -197,6 +197,7 @@ def mondrian(data, K):
     low = [0] * gl_QI_len
     high = [(t - 1) for t in gl_QI_ranges]
     partition = Partition(data, low, high)
+    print "K=%d" % gl_K
     # begin mondrian
     anonymize(partition)
     # generalization result and
