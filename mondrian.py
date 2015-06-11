@@ -5,8 +5,20 @@
 # qiyuangong@gmail.com
 # 2014-09-11
 
-import pdb
+# @InProceedings{LeFevre2006,
+#   Title                    = {Mondrian Multidimensional K-Anonymity},
+#   Author                   = {LeFevre, Kristen and DeWitt, David J. and Ramakrishnan, Raghu},
+#   Booktitle                = {ICDE '06: Proceedings of the 22nd International Conference on Data Engineering},
+#   Year                     = {2006},
+#   Address                  = {Washington, DC, USA},
+#   Pages                    = {25},
+#   Publisher                = {IEEE Computer Society},
+#   Doi                      = {http://dx.doi.org/10.1109/ICDE.2006.101},
+#   File                     = {:All paper\\Mondrian Multidimensional K-Anonymity_ICDE2006.pdf:PDF},
+#   ISBN                     = {0-7695-2570-9},
+# }
 
+import pdb
 
 __DEBUG = True
 gl_QI_len = 10
