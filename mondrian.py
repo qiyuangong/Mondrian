@@ -19,8 +19,9 @@
 # }
 
 import pdb
+import time
 
-__DEBUG = True
+__DEBUG = False
 gl_QI_len = 10
 gl_K = 0
 gl_result = []
@@ -195,12 +196,15 @@ def anonymize(partition):
     gl_result.append(partition)
 
 
-def mondrian(data, K):
+def mondrian(data, K, QI_num=-1):
     """
     """
     global gl_K, gl_result, gl_QI_len
     # initialization
-    gl_QI_len = len(data[0]) - 1
+    if QI_num <= 0:
+        gl_QI_len = len(data[0]) - 1
+    else:
+        gl_QI_len = QI_num
     gl_K = K
     gl_result = []
     result = []
@@ -209,9 +213,10 @@ def mondrian(data, K):
     low = [0] * gl_QI_len
     high = [(t - 1) for t in gl_QI_ranges]
     partition = Partition(data, low, high)
-    print "K=%d" % gl_K
     # begin mondrian
+    start_time = time.time()
     anonymize(partition)
+    rtime = float(time.time() - start_time)
     # generalization result and
     # evaluation information loss
     ncp = 0.0
@@ -233,8 +238,9 @@ def mondrian(data, K):
     ncp /= data_size
     ncp *= 100
     if __DEBUG:
+        print "K=%d" % gl_K
         print "size of partitions=%d" % len(gl_result)
         # print [len(t.member) for t in gl_result]
         print "NCP = %.2f %%" % ncp
         # pdb.set_trace()
-    return result
+    return (result, (ncp, rtime))
