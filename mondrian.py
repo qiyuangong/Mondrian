@@ -36,8 +36,7 @@ gl_QI_order = []
 class Partition:
 
     """
-    Class for Group, which is used to keep records
-    Store tree node in instances.
+    Class for Group (or EC), which is used to keep records
     self.member: records in group
     self.low: lower point, use index to avoid negative values
     self.high: higher point, use index to avoid negative values

@@ -69,4 +69,4 @@ def read_data():
         data.append(v)
     userfile.close()
     conditionfile.close()
-    return data
+    return (data, 0)
