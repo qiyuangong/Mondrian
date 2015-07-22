@@ -21,6 +21,9 @@
 import pdb
 import time
 
+
+# warning all these variables should be re-inited, if
+# you want to run mondrian with different parameters
 __DEBUG = False
 gl_QI_len = 10
 gl_K = 0
@@ -32,11 +35,12 @@ gl_QI_order = []
 
 class Partition:
 
-    """Class for Group, which is used to keep records
+    """
+    Class for Group, which is used to keep records
     Store tree node in instances.
     self.member: records in group
-    self.low: lower point
-    self.high: higher point
+    self.low: lower point, use index to avoid negative values
+    self.high: higher point, use index to avoid negative values
     """
 
     def __init__(self, data, low, high):
@@ -53,7 +57,8 @@ class Partition:
 
 
 def cmp_str(element1, element2):
-    """compare number in str format correctley
+    """
+    compare number in str format correctley
     """
     try:
         return cmp(int(element1), int(element2))
@@ -62,9 +67,14 @@ def cmp_str(element1, element2):
 
 
 def static_values(data):
-    """sort all attributes, get order and range
+    """
+    sort all attributes, get order and range
     """
     global gl_QI_dict, gl_QI_ranges, gl_QI_order
+    # init global variables, or these values may be wrong
+    gl_QI_dict = []
+    gl_QI_order = []
+    gl_QI_ranges = []
     att_values = []
     for i in range(gl_QI_len):
         att_values.append(set())
@@ -74,41 +84,46 @@ def static_values(data):
             att_values[i].add(temp[i])
     for i in range(gl_QI_len):
         value_list = list(att_values[i])
-        gl_QI_ranges.append(len(value_list))
         value_list.sort(cmp=cmp_str)
-        gl_QI_order.append(value_list[:])
+        # gl_QI_ranges.append(len(value_list))
+        gl_QI_ranges.append(float(value_list[-1]) - float(value_list[0]))
+        gl_QI_order.append(list(value_list))
         for index, temp in enumerate(value_list):
             gl_QI_dict[i][temp] = index
 
 
 def getNormalizedWidth(partition, index):
-    """return Normalized width of partition
+    """
+    return Normalized width of partition
     similar to NCP
     """
-    width = partition.high[index] - partition.low[index]
+    d_order = gl_QI_order[index]
+    width = float(d_order[partition.high[index]]) - float(d_order[partition.low[index]])
     return width * 1.0 / gl_QI_ranges[index]
 
 
 def choose_dimension(partition):
-    """chooss dim with largest normWidth from all attributes.
+    """
+    chooss dim with largest normWidth from all attributes.
     This function can be upgraded with other distance function.
     """
-    max_witdh = -1
+    max_width = -1
     max_dim = -1
     for i in range(gl_QI_len):
         if partition.allow[i] == 0:
             continue
         normWidth = getNormalizedWidth(partition, i)
-        if normWidth > max_witdh:
-            max_witdh = normWidth
+        if normWidth > max_width:
+            max_width = normWidth
             max_dim = i
-    if max_witdh > 1:
+    if max_width > 1:
         pdb.set_trace()
     return max_dim
 
 
 def frequency_set(partition, dim):
-    """get the frequency_set of partition on dim
+    """
+    get the frequency_set of partition on dim
     """
     frequency = {}
     for record in partition.member:
@@ -120,7 +135,8 @@ def frequency_set(partition, dim):
 
 
 def find_median(frequency):
-    """find the middle of the partition, return splitVal
+    """
+    find the middle of the partition, return splitVal
     """
     splitVal = ''
     nextVal = ''
@@ -149,7 +165,8 @@ def find_median(frequency):
 
 
 def anonymize(partition):
-    """recursively partition groups until not allowable
+    """
+    recursively partition groups until not allowable
     """
     if len(partition.member) < 2 * gl_K:
         gl_result.append(partition)
@@ -198,6 +215,7 @@ def anonymize(partition):
 
 def mondrian(data, K, QI_num=-1):
     """
+    main function of mondrian
     """
     global gl_K, gl_result, gl_QI_len
     # initialization
@@ -211,7 +229,7 @@ def mondrian(data, K, QI_num=-1):
     data_size = len(data)
     static_values(data)
     low = [0] * gl_QI_len
-    high = [(t - 1) for t in gl_QI_ranges]
+    high = [(len(t) - 1) for t in gl_QI_order]
     partition = Partition(data, low, high)
     # begin mondrian
     start_time = time.time()
