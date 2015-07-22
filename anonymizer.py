@@ -8,6 +8,7 @@ import pdb
 
 gl_data_select = 'a'
 
+
 def get_result_one(data, K=10):
     "run mondrian for one time, with k=10"
     if gl_data_select == 'a':
@@ -19,7 +20,7 @@ def get_result_one(data, K=10):
     result, eval_result = mondrian(data, K)
     data = copy.deepcopy(data_back)
     print "NCP %0.2f" % eval_result[0] + "%"
-    print "Running time %0.2f" % eval_result[1] + "seconds"
+    print "Running time %0.2f" % eval_result[1] + " seconds"
 
 
 def get_result_K(data):
@@ -37,7 +38,7 @@ def get_result_K(data):
         result, eval_result = mondrian(data, K)
         data = copy.deepcopy(data_back)
         print "NCP %0.2f" % eval_result[0] + "%"
-        print "Running time %0.2f" % eval_result[1] + "seconds"
+        print "Running time %0.2f" % eval_result[1] + " seconds"
 
 
 def get_result_dataset(data, K=10, n=10):
@@ -72,7 +73,7 @@ def get_result_dataset(data, K=10, n=10):
         ncp /= n
         rtime /= n
         print "Average NCP %0.2f" % ncp + "%"
-        print "Running time %0.2f" % rtime + "seconds"
+        print "Running time %0.2f" % rtime + " seconds"
         print '#' * 30
 
 
@@ -92,7 +93,7 @@ def get_result_QI(data, K=10):
         result, eval_result = mondrian(data, K, i)
         data = copy.deepcopy(data_back)
         print "NCP %0.2f" % eval_result[0] + "%"
-        print "Running time %0.2f" % eval_result[1] + "seconds"
+        print "Running time %0.2f" % eval_result[1] + " seconds"
 
 
 if __name__ == '__main__':
@@ -105,10 +106,10 @@ if __name__ == '__main__':
         pass
     K = 10
     # read record
-    if gl_data_select == 'a':
-        data, __ = read_adult()
-    else:
+    if gl_data_select == 'i':
         data, __ = read_informs()
+    else:
+        data, __ = read_adult()
     if flag == 'k':
         get_result_K(data)
     elif flag == 'qi':

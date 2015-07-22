@@ -251,6 +251,8 @@ def mondrian(data, K, QI_num=-1):
                 elif type(temp[index]) == str:
                     temp[index] = gl_QI_order[index][p.low[index]] + ',' + gl_QI_order[index][p.high[index]]
             result.append(temp)
+    # If you want to get NCP values instead of percentage
+    # please remove next three lines
     ncp /= gl_QI_len
     ncp /= data_size
     ncp *= 100

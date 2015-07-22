@@ -5,7 +5,7 @@ Mondrian is a Top-down greedy algorithm data anonymization algorithm for relatio
 This repository is an *open source python implement* for Mondrian. I implement this algorithm in python for further study.
 
 ## Attention
-I used both adult and INFORMS dataset in this implementation. The Final NCP of Mondrian on adult dataset is about 12.19% (Nice result!), while 10.21% on INFORMS data (with K=10).
+I used both adult and INFORMS dataset in this implementation. For cleaification, **we transform NCP to percentage**, making the information loss more meaningful (NCP=2000 v.s. NCP=20%). This NCP percentage is compute by NCP value divided by the number of values in dataset. The Final NCP of Mondrian on adult dataset is about 12.19% (Nice result!), while 10.21% on INFORMS data (with K=10).
 
 ### Motivation 
 Researches on data privacy have lasted for more than ten years, lots of great papers have been published. However, only a few open source projects are available on Internet [2-3], most open source projects are using algorithms proposed before 2004! Fewer projects have been used in real life. Worse more, most people even don't hear about it. Such a tragedy! 
@@ -24,8 +24,9 @@ My Implement is based on Python 2.7 (not Python 3.0). Please make sure your Pyth
 	python anonymized.py a 20
 
 Parameters:
-a: adult dataset, 'i': INFORMS ataset
-k: varying k, qi: varying qi numbers, data: varying size of dataset, one: run only once
+
+	a: adult dataset, 'i': INFORMS ataset
+	k: varying k, qi: varying qi numbers, data: varying size of dataset, one: run only once
 
 
 ## For more information:
