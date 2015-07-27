@@ -5,14 +5,13 @@
 # user att ['DUID','PID','DUPERSID','DOBMM','DOBYY','SEX','RACEX','RACEAX','RACEBX','RACEWX','RACETHNX','HISPANX','HISPCAT','EDUCYEAR','Year','marry','income','poverty']
 # condition att ['DUID','DUPERSID','ICD9CODX','year']
 
-import heapq
 
 __DEBUG = False
-gl_useratt = ['DUID', 'PID', 'DUPERSID', 'DOBMM', 'DOBYY', 'SEX', 'RACEX', 'RACEAX', 'RACEBX', 'RACEWX', 'RACETHNX',
-              'HISPANX', 'HISPCAT', 'EDUCYEAR', 'Year', 'marry', 'income', 'poverty']
-gl_conditionatt = ['DUID', 'DUPERSID', 'ICD9CODX', 'year']
+gl_user_att = ['DUID', 'PID', 'DUPERSID', 'DOBMM', 'DOBYY', 'SEX', 'RACEX', 'RACEAX', 'RACEBX', 'RACEWX', 'RACETHNX',
+               'HISPANX', 'HISPCAT', 'EDUCYEAR', 'Year', 'marry', 'income', 'poverty']
+gl_condition_att = ['DUID', 'DUPERSID', 'ICD9CODX', 'year']
 # Only 5 relational attributes and 1 transaction attribute are selected (according to Poulis's paper)
-gl_attlist = [3, 4, 6, 13, 16]
+gl_QI_index = [3, 4, 6, 13, 16]
 
 gl_att_ranges = []
 gl_att_order = []
@@ -29,7 +28,7 @@ def read_data():
     conditionfile = open('data/conditions.csv', 'rU')
     userdata = {}
     # We selet 3,4,5,6,13,15,15 att from demographics05, and 2 from condition05
-    print "Reading Data..."
+    # print "Reading Data..."
     for i, line in enumerate(userfile):
         line = line.strip()
         # ignore first line of csv
@@ -61,8 +60,8 @@ def read_data():
             for t in conditiondata[k]:
                 temp.append(t[2])
             hashdata[k] = []
-            for i in range(len(gl_attlist)):
-                index = gl_attlist[i]
+            for i in range(len(gl_QI_index)):
+                index = gl_QI_index[i]
                 hashdata[k].append(v[index])
             hashdata[k].append(temp)
     for k, v in hashdata.iteritems():

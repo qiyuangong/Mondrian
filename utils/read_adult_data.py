@@ -10,7 +10,7 @@
 import pdb
 
 gl_att_names = ['age', 'workcalss', 'final_weight', 'education',
-                'education_num', 'matrital_status', 'occupation', 'relationship',
+                'education_num', 'marital_status', 'occupation', 'relationship',
                 'race', 'sex', 'capital_gain', 'capital_loss', 'hours_per_week', 'native_country', 'class']
 gl_QI_index = [0, 1, 3, 5, 8, 9, 13]
 gl_is_cat = [False, True, True, True, True, True, True]
