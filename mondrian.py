@@ -65,32 +65,6 @@ def cmp_str(element1, element2):
         return cmp(element1, element2)
 
 
-def static_values(data):
-    """
-    sort all attributes, get order and range
-    """
-    global gl_QI_dict, gl_QI_ranges, gl_QI_order
-    # init global variables, or these values may be wrong
-    gl_QI_dict = []
-    gl_QI_order = []
-    gl_QI_ranges = []
-    att_values = []
-    for i in range(gl_QI_len):
-        att_values.append(set())
-        gl_QI_dict.append({})
-    for temp in data:
-        for i in range(gl_QI_len):
-            att_values[i].add(temp[i])
-    for i in range(gl_QI_len):
-        value_list = list(att_values[i])
-        value_list.sort(cmp=cmp_str)
-        # gl_QI_ranges.append(len(value_list))
-        gl_QI_ranges.append(float(value_list[-1]) - float(value_list[0]))
-        gl_QI_order.append(list(value_list))
-        for index, temp in enumerate(value_list):
-            gl_QI_dict[i][temp] = index
-
-
 def getNormalizedWidth(partition, index):
     """
     return Normalized width of partition
@@ -212,21 +186,44 @@ def anonymize(partition):
     gl_result.append(partition)
 
 
-def mondrian(data, K, QI_num=-1):
+def init(data, K, QI_num=-1):
     """
-    main function of mondrian
+    reset global variables
     """
-    global gl_K, gl_result, gl_QI_len
-    # initialization
+    global gl_K, gl_result, gl_QI_len, gl_QI_dict, gl_QI_ranges, gl_QI_order
     if QI_num <= 0:
         gl_QI_len = len(data[0]) - 1
     else:
         gl_QI_len = QI_num
     gl_K = K
     gl_result = []
+    # static values
+    gl_QI_dict = []
+    gl_QI_order = []
+    gl_QI_ranges = []
+    att_values = []
+    for i in range(gl_QI_len):
+        att_values.append(set())
+        gl_QI_dict.append({})
+    for temp in data:
+        for i in range(gl_QI_len):
+            att_values[i].add(temp[i])
+    for i in range(gl_QI_len):
+        value_list = list(att_values[i])
+        value_list.sort(cmp=cmp_str)
+        gl_QI_ranges.append(float(value_list[-1]) - float(value_list[0]))
+        gl_QI_order.append(list(value_list))
+        for index, temp in enumerate(value_list):
+            gl_QI_dict[i][temp] = index
+
+
+def mondrian(data, K, QI_num=-1):
+    """
+    main function of mondrian
+    """
+    init(data, K, QI_num)
     result = []
     data_size = len(data)
-    static_values(data)
     low = [0] * gl_QI_len
     high = [(len(t) - 1) for t in gl_QI_order]
     partition = Partition(data, low, high)
