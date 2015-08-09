@@ -10,7 +10,7 @@ Researches on data privacy have lasted for more than ten years, lots of great pa
 I decided to make some effort. Hoping these open source repositories can help researchers and developers on data privacy (privacy preserving data publishing).
 
 ### Attention
-I used **both adult and INFORMS** dataset in this implementation. For clarification, **we transform NCP to percentage**, making the NCP (information loss) more meaningful (NCP=2000 v.s. NCP=20%, the former one is sensitive to size of dataset, the latter one is suit for any dataset). This NCP percentage is computed by dividing NCP value with the number of values in dataset (the number of values can be treated as losing all information). The Final NCP of Mondrian on adult dataset is about 12.19% (Nice result!), while 10.21% on INFORMS data (with K=10).
+I used **both adult and INFORMS** dataset in this implementation. For clarification, **we transform NCP to percentage**, making the NCP (information loss) more meaningful (NCP=2000 v.s. NCP=20%, the former one is sensitive to size of dataset, the latter one is suit for any dataset). This NCP percentage (also called GCP[4]) is computed by dividing NCP value with the number of values in dataset (the number of values can be treated as losing all information). The Final NCP of Mondrian on adult dataset is about 12.19% (Nice result!), while 10.21% on INFORMS data (with K=10).
 
 ### Usage and Parameters:
 My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your Python environment is collectly installed. You can run Mondrian in following steps: 
@@ -37,6 +37,8 @@ Parameters:
 [2] [UTD Anonymization Toolbox](http://cs.utdallas.edu/dspl/cgi-bin/toolbox/index.php?go=home)
 
 [3] [ARX- Powerful Data Anonymization](https://github.com/arx-deidentifier/arx)
+
+[4] G. Ghinita, P. Karras, P. Kalnis, N. Mamoulis. Fast data anonymization with low information loss. Proceedings of the 33rd international conference on Very large data bases, VLDB Endowment, 2007, 758-769
 
 ==========================
 by Qiyuan Gong
