@@ -168,14 +168,23 @@ def anonymize(partition):
         rlow[dim] = gl_QI_dict[dim][nextVal]
         lhs = []
         rhs = []
+        mid_set = []
         for temp in partition.member:
             pos = gl_QI_dict[dim][temp[dim]]
-            if pos <= mean:
-                # lhs = [low, mean]
+            if pos < mean:
+                # lhs = [low, mean)
                 lhs.append(temp)
-            else:
+            elif pos > mean:
                 # rhs = (mean, high]
                 rhs.append(temp)
+            else:
+                # mid_set keep the means
+                mid_set.append(temp)
+        half_size = len(partition.member) / 2
+        for i in range(half_size - len(lhs)):
+            temp = mid_set.pop()
+            lhs.append(temp)
+        rhs.extend(mid_set)
         if len(lhs) < gl_K or len(rhs) < gl_K:
             partition.allow[dim] = 0
             continue
