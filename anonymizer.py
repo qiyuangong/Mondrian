@@ -1,132 +1,123 @@
-#!/usr/bin/env python
+"""
+run mondrian with given parameters
+"""
+
+# !/usr/bin/env python
 # coding=utf-8
 from mondrian import mondrian
 from utils.read_adult_data import read_data as read_adult
 from utils.read_informs_data import read_data as read_informs
 import sys, copy, random
-import pdb
 
-gl_data_select = 'a'
+DATA_SELECT = 'a'
 
 
-def get_result_one(data, K=10):
-    "run mondrian for one time, with k=10"
-    if gl_data_select == 'a':
-        print "Adult data"
-    else:
-        print "INFORMS data"
-    print "K=%d" % K
+def get_result_one(data, k=10):
+    """
+    run mondrian for one time, with k=10
+    """
+    print "K=%d" % k
     data_back = copy.deepcopy(data)
-    result, eval_result = mondrian(data, K)
+    _, eval_result = mondrian(data, k)
     data = copy.deepcopy(data_back)
     print "NCP %0.2f" % eval_result[0] + "%"
     print "Running time %0.2f" % eval_result[1] + " seconds"
 
 
-def get_result_K(data):
+def get_result_k(data):
     """
-    change K, whle fixing QD and size of dataset
+    change k, whle fixing QD and size of dataset
     """
     data_back = copy.deepcopy(data)
-    for K in range(5, 55, 5):
+    for k in range(5, 105, 5):
         print '#' * 30
-        if gl_data_select == 'a':
-            print "Adult data"
-        else:
-            print "INFORMS data"
-        print "K=%d" % K
-        result, eval_result = mondrian(data, K)
+        print "K=%d" % k
+        result, eval_result = mondrian(data, k)
         data = copy.deepcopy(data_back)
         print "NCP %0.2f" % eval_result[0] + "%"
         print "Running time %0.2f" % eval_result[1] + " seconds"
 
 
-def get_result_dataset(data, K=10, n=10):
+def get_result_dataset(data, k=10, num_test=10):
     """
     fix k and QI, while changing size of dataset
-    n is the proportion nubmber.
+    num_test is the test nubmber.
     """
     data_back = copy.deepcopy(data)
     length = len(data_back)
-    # print "K=%d" % K
     joint = 5000
-    h = length / joint
+    dataset_num = length / joint
     if length % joint == 0:
-        h += 1
-    for i in range(1, h + 1):
+        dataset_num += 1
+    for i in range(1, dataset_num + 1):
         pos = i * joint
         ncp = rtime = 0
         if pos > length:
             continue
         print '#' * 30
-        if gl_data_select == 'a':
-            print "Adult data"
-        else:
-            print "INFORMS data"
         print "size of dataset %d" % pos
-        for j in range(n):
+        for j in range(num_test):
             temp = random.sample(data, pos)
-            result, eval_result = mondrian(temp, K)
+            _, eval_result = mondrian(temp, k)
             ncp += eval_result[0]
             rtime += eval_result[1]
             data = copy.deepcopy(data_back)
-        ncp /= n
-        rtime /= n
+        ncp /= num_test
+        rtime /= num_test
         print "Average NCP %0.2f" % ncp + "%"
         print "Running time %0.2f" % rtime + " seconds"
         print '#' * 30
 
 
-def get_result_QI(data, K=10):
+def get_result_qi(data, k=10):
     """
-    change nubmber of QI, whle fixing K and size of dataset
+    change nubmber of QI, whle fixing k and size of dataset
     """
     data_back = copy.deepcopy(data)
-    ls = len(data[0])
-    for i in reversed(range(1, ls)):
+    num_data = len(data[0])
+    for i in reversed(range(1, num_data)):
         print '#' * 30
-        if gl_data_select == 'a':
-            print "Adult data"
-        else:
-            print "INFORMS data"
         print "Number of QI=%d" % i
-        result, eval_result = mondrian(data, K, i)
+        _, eval_result = mondrian(data, k, i)
         data = copy.deepcopy(data_back)
         print "NCP %0.2f" % eval_result[0] + "%"
         print "Running time %0.2f" % eval_result[1] + " seconds"
 
 
 if __name__ == '__main__':
-    flag = ''
-    len_argv = len(sys.argv)
+    FLAG = ''
+    LEN_ARGV = len(sys.argv)
     try:
-        gl_data_select = sys.argv[1]
-        flag = sys.argv[2]
-    except:
+        DATA_SELECT = sys.argv[1]
+        FLAG = sys.argv[2]
+    except IndexError:
         pass
-    K = 10
+    GL_K = 10
     # read record
-    if gl_data_select == 'i':
-        data, __ = read_informs()
+    if DATA_SELECT == 'i':
+        print "INFORMS data"
+        DATA = read_informs()
     else:
-        data, __ = read_adult()
-    if flag == 'k':
-        get_result_K(data)
-    elif flag == 'qi':
-        get_result_QI(data)
-    elif flag == 'data':
-        get_result_dataset(data)
-    elif flag == 'one':
-        if len_argv > 2:
-            K = int(sys.argv[3])
-            get_result_one(data, K)
+        print "Adult data"
+        DATA = read_adult()
+    if FLAG == 'k':
+        get_result_k(DATA)
+    elif FLAG == 'qi':
+        get_result_qi(DATA)
+    elif FLAG == 'data':
+        get_result_dataset(DATA)
+    elif FLAG == 'one':
+        if LEN_ARGV > 2:
+            GL_K = int(sys.argv[3])
+            get_result_one(DATA, GL_K)
         else:
-            get_result_one(data)
-    elif flag == '':
-        get_result_one(data)
+            get_result_one(DATA)
+    elif FLAG == '':
+        get_result_one(DATA)
     else:
         print "Usage: python anonymizer [a | i] [k | qi |data | one]"
         print "a: adult dataset, 'i': INFORMS ataset"
-        print "k: varying k, qi: varying qi numbers, data: varying size of dataset, one: run only once"
+        print "k: varying k, qi: varying qi numbers, \
+               data: varying size of dataset, one: run only once"
     # anonymized dataset is stored in result
     print "Finish Mondrian!!"

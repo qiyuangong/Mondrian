@@ -1,39 +1,42 @@
-#!/usr/bin/env python
-# coding=utf-8
+"""
+main module of mondrian
+"""
 
 # Implemented by Qiyuan Gong
 # qiyuangong@gmail.com
 # 2014-09-11
 
 # @InProceedings{LeFevre2006,
-#   Title                    = {Mondrian Multidimensional K-Anonymity},
-#   Author                   = {LeFevre, Kristen and DeWitt, David J. and Ramakrishnan, Raghu},
-#   Booktitle                = {ICDE '06: Proceedings of the 22nd International Conference on Data Engineering},
-#   Year                     = {2006},
-#   Address                  = {Washington, DC, USA},
-#   Pages                    = {25},
-#   Publisher                = {IEEE Computer Society},
-#   Doi                      = {http://dx.doi.org/10.1109/ICDE.2006.101},
-#   File                     = {:All paper\\Mondrian Multidimensional K-Anonymity_ICDE2006.pdf:PDF},
-#   ISBN                     = {0-7695-2570-9},
+#   Title = {Mondrian Multidimensional K-Anonymity},
+#   Author = {LeFevre, Kristen and DeWitt, David J. and Ramakrishnan, Raghu},
+#   Booktitle = {ICDE '06: Proceedings of the 22nd International Conference on Data Engineering},
+#   Year = {2006},
+#   Address = {Washington, DC, USA},
+#   Pages = {25},
+#   Publisher = {IEEE Computer Society},
+#   Doi = {http://dx.doi.org/10.1109/ICDE.2006.101},
+#   ISBN = {0-7695-2570-9},
 # }
+
+# !/usr/bin/env python
+# coding=utf-8
 
 import pdb
 import time
-
+from utils.utility import cmp_str
 
 # warning all these variables should be re-inited, if
 # you want to run mondrian with different parameters
 __DEBUG = False
-gl_QI_len = 10
-gl_K = 0
-gl_result = []
-gl_QI_ranges = []
-gl_QI_dict = []
-gl_QI_order = []
+QI_LEN = 10
+GL_K = 0
+RESULT = []
+QI_RANGE = []
+QI_DICT = []
+QI_ORDER = []
 
 
-class Partition:
+class Partition(object):
 
     """
     Class for Group (or EC), which is used to keep records
@@ -46,23 +49,31 @@ class Partition:
         """
         split_tuple = (index, low, high)
         """
-        self.low = low[:]
-        self.high = high[:]
-        # We found that allow should not be inherited
-        # in any case (both numeric and catogoric), or
-        # some group will not be well splited.
-        self.allow = [1] * gl_QI_len
+        self.low = list(low)
+        self.high = list(high)
         self.member = data[:]
 
+    def add_record(self, record, dim, index=-1):
+        """
+        add one record to member
+        """
+        self.member.append(record)
+        if index == -1:
+            index = QI_DICT[dim][record[dim]]
 
-def cmp_str(element1, element2):
-    """
-    compare number in str format correctley
-    """
-    try:
-        return cmp(int(element1), int(element2))
-    except:
-        return cmp(element1, element2)
+    def add_multiple_record(self, records, dim):
+        """
+        add multiple records (list) to partition
+        """
+        for record in records:
+            index = QI_DICT[dim][record[dim]]
+            self.add_record(record, dim, index)
+
+    def __len__(self):
+        """
+        return number of records
+        """
+        return len(self.member)
 
 
 def getNormalizedWidth(partition, index):
@@ -70,9 +81,9 @@ def getNormalizedWidth(partition, index):
     return Normalized width of partition
     similar to NCP
     """
-    d_order = gl_QI_order[index]
+    d_order = QI_ORDER[index]
     width = float(d_order[partition.high[index]]) - float(d_order[partition.low[index]])
-    return width * 1.0 / gl_QI_ranges[index]
+    return width * 1.0 / QI_RANGE[index]
 
 
 def choose_dimension(partition):
@@ -82,9 +93,7 @@ def choose_dimension(partition):
     """
     max_width = -1
     max_dim = -1
-    for i in range(gl_QI_len):
-        if partition.allow[i] == 0:
-            continue
+    for i in range(QI_LEN):
         normWidth = getNormalizedWidth(partition, i)
         if normWidth > max_width:
             max_width = normWidth
@@ -102,7 +111,7 @@ def frequency_set(partition, dim):
     for record in partition.member:
         try:
             frequency[record[dim]] += 1
-        except:
+        except KeyError:
             frequency[record[dim]] = 1
     return frequency
 
@@ -117,7 +126,7 @@ def find_median(frequency):
     value_list.sort(cmp=cmp_str)
     total = sum(frequency.values())
     middle = total / 2
-    if middle < gl_K:
+    if middle < GL_K:
         print "Error: size of group less than 2*K"
         return ('', '')
     index = 0
@@ -132,8 +141,10 @@ def find_median(frequency):
         print "Error: cannot find splitVal"
     try:
         nextVal = value_list[split_index + 1]
-    except:
-        nextVal = ''
+    except IndexError:
+        # there is a frequency value in partition
+        # which can be handle by mid_set
+        nextVal = splitVal
     return (splitVal, nextVal)
 
 
@@ -141,89 +152,84 @@ def anonymize(partition):
     """
     recursively partition groups until not allowable
     """
-    if len(partition.member) < 2 * gl_K:
-        gl_result.append(partition)
+    if len(partition) < 2 * GL_K:
+        # can not split
+        RESULT.append(partition)
         return
-    allow_count = sum(partition.allow)
-    # only run allow_count times
-    for index in range(allow_count):
-        # choose attrubite from domain
-        plow = partition.low
-        phigh = partition.high
-        dim = choose_dimension(partition)
-        if dim == -1:
-            print "Error: dim=-1"
-            pdb.set_trace()
-        # use frequency set to get median
-        frequency = frequency_set(partition, dim)
-        (splitVal, nextVal) = find_median(frequency)
-        if splitVal == '' or nextVal == '':
-            partition.allow[dim] = 0
-            continue
-        # split the group from median
-        mean = gl_QI_dict[dim][splitVal]
-        lhigh = phigh[:]
-        rlow = plow[:]
-        lhigh[dim] = mean
-        rlow[dim] = gl_QI_dict[dim][nextVal]
-        lhs = []
-        rhs = []
-        mid_set = []
-        for temp in partition.member:
-            pos = gl_QI_dict[dim][temp[dim]]
-            if pos < mean:
-                # lhs = [low, mean)
-                lhs.append(temp)
-            elif pos > mean:
-                # rhs = (mean, high]
-                rhs.append(temp)
-            else:
-                # mid_set keep the means
-                mid_set.append(temp)
-        half_size = len(partition.member) / 2
-        for i in range(half_size - len(lhs)):
-            temp = mid_set.pop()
-            lhs.append(temp)
-        rhs.extend(mid_set)
-        if len(lhs) < gl_K or len(rhs) < gl_K:
-            partition.allow[dim] = 0
-            continue
-        # anonymize sub-partition
-        anonymize(Partition(lhs, plow, lhigh))
-        anonymize(Partition(rhs, rlow, phigh))
-        return
-    gl_result.append(partition)
+    # choose attrubite from domain
+    dim = choose_dimension(partition)
+    if dim == -1:
+        print "Error: dim=-1"
+        pdb.set_trace()
+    # use frequency set to get median
+    frequency = frequency_set(partition, dim)
+    (splitVal, nextVal) = find_median(frequency)
+    if splitVal == '':
+        print "Error: splitVal empty"
+    # split the group from median
+    mean = QI_DICT[dim][splitVal]
+    lhigh = partition.high[:]
+    rlow = partition.low[:]
+    lhigh[dim] = mean
+    rlow[dim] = QI_DICT[dim][nextVal]
+    lhs = Partition([], partition.low, lhigh)
+    rhs = Partition([], rlow, partition.high)
+    mid_set = []
+    for record in partition.member:
+        pos = QI_DICT[dim][record[dim]]
+        if pos < mean:
+            # lhs = [low, mean)
+            lhs.add_record(record, dim, pos)
+        elif pos > mean:
+            # rhs = (mean, high]
+            rhs.add_record(record, dim, pos)
+        else:
+            # mid_set keep the means
+            mid_set.append(record)
+    half_size = len(partition) / 2
+    # |lhs| = |rhs| (+1 if total size is odd)
+    for i in range(half_size - len(lhs)):
+        record = mid_set.pop()
+        lhs.add_record(record, dim)
+    if len(mid_set) > 0:
+        rhs.low[dim] = mean
+        rhs.add_multiple_record(mid_set, dim)
+    if len(lhs) < GL_K or len(rhs) < GL_K:
+        print "Error: split failure"
+    # anonymize sub-partition
+    anonymize(lhs)
+    anonymize(rhs)
 
 
 def init(data, K, QI_num=-1):
     """
     reset global variables
     """
-    global gl_K, gl_result, gl_QI_len, gl_QI_dict, gl_QI_ranges, gl_QI_order
+    global GL_K, RESULT, QI_LEN, QI_DICT, QI_RANGE, QI_ORDER
     if QI_num <= 0:
-        gl_QI_len = len(data[0]) - 1
+        QI_LEN = len(data[0]) - 1
     else:
-        gl_QI_len = QI_num
-    gl_K = K
-    gl_result = []
+        QI_LEN = QI_num
+    GL_K = K
+    RESULT = []
     # static values
-    gl_QI_dict = []
-    gl_QI_order = []
-    gl_QI_ranges = []
+    QI_DICT = []
+    QI_ORDER = []
+    QI_RANGE = []
     att_values = []
-    for i in range(gl_QI_len):
+    for i in range(QI_LEN):
         att_values.append(set())
-        gl_QI_dict.append({})
-    for temp in data:
-        for i in range(gl_QI_len):
-            att_values[i].add(temp[i])
-    for i in range(gl_QI_len):
+        QI_DICT.append(dict())
+    for record in data:
+        for i in range(QI_LEN):
+            att_values[i].add(record[i])
+    for i in range(QI_LEN):
         value_list = list(att_values[i])
         value_list.sort(cmp=cmp_str)
-        gl_QI_ranges.append(float(value_list[-1]) - float(value_list[0]))
-        gl_QI_order.append(list(value_list))
-        for index, temp in enumerate(value_list):
-            gl_QI_dict[i][temp] = index
+        QI_RANGE.append(float(value_list[-1]) - float(value_list[0]))
+        QI_ORDER.append(list(value_list))
+        for index, qi_value in enumerate(value_list):
+            QI_DICT[i][qi_value] = index
 
 
 def mondrian(data, K, QI_num=-1):
@@ -233,39 +239,42 @@ def mondrian(data, K, QI_num=-1):
     init(data, K, QI_num)
     result = []
     data_size = len(data)
-    low = [0] * gl_QI_len
-    high = [(len(t) - 1) for t in gl_QI_order]
-    partition = Partition(data, low, high)
+    low = [0] * QI_LEN
+    high = [(len(t) - 1) for t in QI_ORDER]
+    whole_partition = Partition(data, low, high)
     # begin mondrian
     start_time = time.time()
-    anonymize(partition)
+    anonymize(whole_partition)
     rtime = float(time.time() - start_time)
     # generalization result and
     # evaluation information loss
     ncp = 0.0
-    for p in gl_result:
+    dm = 0.0
+    for partition in RESULT:
         rncp = 0.0
-        for index in range(gl_QI_len):
-            rncp += getNormalizedWidth(p, index)
-        rncp *= len(p.member)
+        for index in range(QI_LEN):
+            rncp += getNormalizedWidth(partition, index)
+        rncp *= len(partition)
         ncp += rncp
-        for temp in p.member:
-            for index in range(gl_QI_len):
-                if type(temp[index]) == int:
-                    temp[index] = '%d,%d' % (gl_QI_order[index][p.low[index]],
-                                             gl_QI_order[index][p.high[index]])
-                elif type(temp[index]) == str:
-                    temp[index] = gl_QI_order[index][p.low[index]] + ',' + gl_QI_order[index][p.high[index]]
-            result.append(temp)
+        dm += len(partition) * len(partition)
+        for record in partition.member:
+            for index in range(QI_LEN):
+                if isinstance(record[index], int):
+                    record[index] = '%d,%d' % (QI_ORDER[index][partition.low[index]],
+                                               QI_ORDER[index][partition.high[index]])
+                elif isinstance(record[index], str):
+                    record[index] = QI_ORDER[index][partition.low[index]] +\
+                        ',' + QI_ORDER[index][partition.high[index]]
+            result.append(record)
     # If you want to get NCP values instead of percentage
     # please remove next three lines
-    ncp /= gl_QI_len
+    ncp /= QI_LEN
     ncp /= data_size
     ncp *= 100
     if __DEBUG:
-        print "K=%d" % gl_K
-        print "size of partitions=%d" % len(gl_result)
-        # print [len(t.member) for t in gl_result]
+        from decimal import Decimal
+        print "DM=%.2E" % Decimal(str(dm))
+        print "K=%d" % GL_K
+        print "size of partitions=%d" % len(RESULT)
         print "NCP = %.2f %%" % ncp
-        # pdb.set_trace()
     return (result, (ncp, rtime))

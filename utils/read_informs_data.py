@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+"""
+read informs dataset
+"""
+
+# !/usr/bin/env python
 # coding=utf-8
 
 # Read data and read tree fuctions for INFORMS data
@@ -7,15 +11,12 @@
 
 
 __DEBUG = False
-gl_user_att = ['DUID', 'PID', 'DUPERSID', 'DOBMM', 'DOBYY', 'SEX', 'RACEX', 'RACEAX', 'RACEBX', 'RACEWX', 'RACETHNX',
-               'HISPANX', 'HISPCAT', 'EDUCYEAR', 'Year', 'marry', 'income', 'poverty']
-gl_condition_att = ['DUID', 'DUPERSID', 'ICD9CODX', 'year']
+USER_ATT = ['DUID', 'PID', 'DUPERSID', 'DOBMM', 'DOBYY', 'SEX', 'RACEX', 'RACEAX',
+            'RACEBX', 'RACEWX', 'RACETHNX', 'HISPANX', 'HISPCAT', 'EDUCYEAR',
+            'Year', 'marry', 'income', 'poverty']
+CONDITION_ATT = ['DUID', 'DUPERSID', 'ICD9CODX', 'year']
 # Only 5 relational attributes and 1 transaction attribute are selected (according to Poulis's paper)
-gl_QI_index = [3, 4, 6, 13, 16]
-
-gl_att_ranges = []
-gl_att_order = []
-
+QI_INDEX = [3, 4, 6, 13, 16]
 __DEBUG = False
 
 
@@ -51,7 +52,7 @@ def read_data():
         row[2] = row[2][1:-1]
         try:
             conditiondata[row[1]].append(row)
-        except:
+        except KeyError:
             conditiondata[row[1]] = [row]
     hashdata = {}
     for k, v in userdata.iteritems():
@@ -60,12 +61,12 @@ def read_data():
             for t in conditiondata[k]:
                 temp.append(t[2])
             hashdata[k] = []
-            for i in range(len(gl_QI_index)):
-                index = gl_QI_index[i]
+            for i in range(len(QI_INDEX)):
+                index = QI_INDEX[i]
                 hashdata[k].append(v[index])
             hashdata[k].append(temp)
     for k, v in hashdata.iteritems():
         data.append(v)
     userfile.close()
     conditionfile.close()
-    return (data, 0)
+    return data
