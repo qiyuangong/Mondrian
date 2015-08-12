@@ -144,6 +144,7 @@ def find_median(frequency):
     except IndexError:
         # there is a frequency value in partition
         # which can be handle by mid_set
+        # e.g.[1, 2, 3, 4, 4, 4, 4]
         nextVal = splitVal
     return (splitVal, nextVal)
 
@@ -168,12 +169,12 @@ def anonymize(partition):
         print "Error: splitVal empty"
     # split the group from median
     mean = QI_DICT[dim][splitVal]
-    lhigh = partition.high[:]
-    rlow = partition.low[:]
-    lhigh[dim] = mean
-    rlow[dim] = QI_DICT[dim][nextVal]
-    lhs = Partition([], partition.low, lhigh)
-    rhs = Partition([], rlow, partition.high)
+    left_high = partition.high[:]
+    right_low = partition.low[:]
+    left_high[dim] = mean
+    right_low[dim] = QI_DICT[dim][nextVal]
+    lhs = Partition([], partition.low, left_high)
+    rhs = Partition([], right_low, partition.high)
     mid_set = []
     for record in partition.member:
         pos = QI_DICT[dim][record[dim]]
@@ -186,8 +187,11 @@ def anonymize(partition):
         else:
             # mid_set keep the means
             mid_set.append(record)
-    half_size = len(partition) / 2
+    # handle records in the middle
+    # these records will be divided evenly
+    # between lhs and rhs, such that
     # |lhs| = |rhs| (+1 if total size is odd)
+    half_size = len(partition) / 2
     for i in range(half_size - len(lhs)):
         record = mid_set.pop()
         lhs.add_record(record, dim)
@@ -201,7 +205,7 @@ def anonymize(partition):
     anonymize(rhs)
 
 
-def init(data, K, QI_num=-1):
+def init(data, k, QI_num=-1):
     """
     reset global variables
     """
@@ -210,7 +214,7 @@ def init(data, K, QI_num=-1):
         QI_LEN = len(data[0]) - 1
     else:
         QI_LEN = QI_num
-    GL_K = K
+    GL_K = k
     RESULT = []
     # static values
     QI_DICT = []
@@ -232,11 +236,11 @@ def init(data, K, QI_num=-1):
             QI_DICT[i][qi_value] = index
 
 
-def mondrian(data, K, QI_num=-1):
+def mondrian(data, k, QI_num=-1):
     """
     main function of mondrian
     """
-    init(data, K, QI_num)
+    init(data, k, QI_num)
     result = []
     data_size = len(data)
     low = [0] * QI_LEN
