@@ -43,6 +43,7 @@ class Partition(object):
     self.member: records in group
     self.low: lower point, use index to avoid negative values
     self.high: higher point, use index to avoid negative values
+    self.allow: show if partition can be split on this QI
     """
 
     def __init__(self, data, low, high):
@@ -52,6 +53,7 @@ class Partition(object):
         self.low = list(low)
         self.high = list(high)
         self.member = data[:]
+        self.allow = [1] * QI_LEN
 
     def add_record(self, record, dim, index=-1):
         """
@@ -76,7 +78,7 @@ class Partition(object):
         return len(self.member)
 
 
-def getNormalizedWidth(partition, index):
+def get_normalized_width(partition, index):
     """
     return Normalized width of partition
     similar to NCP
@@ -88,16 +90,18 @@ def getNormalizedWidth(partition, index):
 
 def choose_dimension(partition):
     """
-    chooss dim with largest normWidth from all attributes.
+    chooss dim with largest norm_width from all attributes.
     This function can be upgraded with other distance function.
     """
     max_width = -1
     max_dim = -1
-    for i in range(QI_LEN):
-        normWidth = getNormalizedWidth(partition, i)
-        if normWidth > max_width:
-            max_width = normWidth
-            max_dim = i
+    for dim in range(QI_LEN):
+        if partition.allow[dim] == 0:
+            continue
+        norm_width = get_normalized_width(partition, dim)
+        if norm_width > max_width:
+            max_width = norm_width
+            max_dim = dim
     if max_width > 1:
         pdb.set_trace()
     return max_dim
@@ -131,10 +135,10 @@ def find_median(frequency):
         return ('', '')
     index = 0
     split_index = 0
-    for i, t in enumerate(value_list):
-        index += frequency[t]
+    for i, qi_value in enumerate(value_list):
+        index += frequency[qi_value]
         if index >= middle:
-            splitVal = t
+            splitVal = qi_value
             split_index = i
             break
     else:
@@ -149,7 +153,56 @@ def find_median(frequency):
     return (splitVal, nextVal)
 
 
-def anonymize(partition):
+def anonymize_strict(partition):
+    """
+    recursively partition groups until not allowable
+    """
+    if len(partition) < 2 * GL_K:
+        # can not split
+        RESULT.append(partition)
+        return
+    allow_count = sum(partition.allow)
+    # only run allow_count times
+    for index in range(allow_count):
+        # choose attrubite from domain
+        dim = choose_dimension(partition)
+        if dim == -1:
+            print "Error: dim=-1"
+            pdb.set_trace()
+        # use frequency set to get median
+        frequency = frequency_set(partition, dim)
+        (splitVal, nextVal) = find_median(frequency)
+        if splitVal == '':
+            partition.allow[dim] = 0
+            continue
+        # split the group from median
+        mean = QI_DICT[dim][splitVal]
+        left_high = partition.high[:]
+        right_low = partition.low[:]
+        left_high[dim] = mean
+        right_low[dim] = QI_DICT[dim][nextVal]
+        lhs = Partition([], partition.low, left_high)
+        rhs = Partition([], right_low, partition.high)
+        for record in partition.member:
+            pos = QI_DICT[dim][record[dim]]
+            if pos <= mean:
+                # lhs = [low, mean)
+                lhs.add_record(record, dim, pos)
+            else:
+                # rhs = (mean, high]
+                rhs.add_record(record, dim, pos)
+        # check is lhs and rhs satisfy k-anonymity
+        if len(lhs) < GL_K or len(rhs) < GL_K:
+            partition.allow[dim] = 0
+            continue
+        # anonymize sub-partition
+        anonymize_strict(lhs)
+        anonymize_strict(rhs)
+        return
+    RESULT.append(partition)
+
+
+def anonymize_relaxed(partition):
     """
     recursively partition groups until not allowable
     """
@@ -198,11 +251,12 @@ def anonymize(partition):
     if len(mid_set) > 0:
         rhs.low[dim] = mean
         rhs.add_multiple_record(mid_set, dim)
-    if len(lhs) < GL_K or len(rhs) < GL_K:
-        print "Error: split failure"
+    # It's not necessary now.
+    # if len(lhs) < GL_K or len(rhs) < GL_K:
+    #     print "Error: split failure"
     # anonymize sub-partition
-    anonymize(lhs)
-    anonymize(rhs)
+    anonymize_relaxed(lhs)
+    anonymize_relaxed(rhs)
 
 
 def init(data, k, QI_num=-1):
@@ -236,9 +290,17 @@ def init(data, k, QI_num=-1):
             QI_DICT[i][qi_value] = index
 
 
-def mondrian(data, k, QI_num=-1):
+def mondrian(data, k, relax=False, QI_num=-1):
     """
     main function of mondrian
+    data: dataset in list
+    k: k parameter for k-anonymity
+    QI_num: number of QI in dataset
+    relax: determine use strict or relaxed mondrian,
+    both mondrian split partition with binary split.
+    In strict mondrian, lhs and rhs have not intersection.
+    But in relaxed mondrian, lhs may be have intersection with rhs.
+    return result in list
     """
     init(data, k, QI_num)
     result = []
@@ -248,7 +310,12 @@ def mondrian(data, k, QI_num=-1):
     whole_partition = Partition(data, low, high)
     # begin mondrian
     start_time = time.time()
-    anonymize(whole_partition)
+    if relax:
+        # relax model
+        anonymize_relaxed(whole_partition)
+    else:
+        # strict model
+        anonymize_strict(whole_partition)
     rtime = float(time.time() - start_time)
     # generalization result and
     # evaluation information loss
@@ -257,7 +324,7 @@ def mondrian(data, k, QI_num=-1):
     for partition in RESULT:
         rncp = 0.0
         for index in range(QI_LEN):
-            rncp += getNormalizedWidth(partition, index)
+            rncp += get_normalized_width(partition, index)
         rncp *= len(partition)
         ncp += rncp
         dm += len(partition) * len(partition)
@@ -275,10 +342,13 @@ def mondrian(data, k, QI_num=-1):
     ncp /= QI_LEN
     ncp /= data_size
     ncp *= 100
+    # ncp /= 10000
     if __DEBUG:
         from decimal import Decimal
         print "DM=%.2E" % Decimal(str(dm))
-        print "K=%d" % GL_K
         print "size of partitions=%d" % len(RESULT)
+        print "K=%d" % GL_K
         print "NCP = %.2f %%" % ncp
+        # print[len(t) for t in RESULT]
+        # pdb.set_trace()
     return (result, (ncp, rtime))

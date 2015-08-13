@@ -10,6 +10,7 @@ from utils.read_informs_data import read_data as read_informs
 import sys, copy, random
 
 DATA_SELECT = 'a'
+RELAX = False
 
 
 def get_result_one(data, k=10):
@@ -18,7 +19,7 @@ def get_result_one(data, k=10):
     """
     print "K=%d" % k
     data_back = copy.deepcopy(data)
-    _, eval_result = mondrian(data, k)
+    _, eval_result = mondrian(data, k, RELAX)
     data = copy.deepcopy(data_back)
     print "NCP %0.2f" % eval_result[0] + "%"
     print "Running time %0.2f" % eval_result[1] + " seconds"
@@ -29,10 +30,11 @@ def get_result_k(data):
     change k, whle fixing QD and size of dataset
     """
     data_back = copy.deepcopy(data)
+    # for k in [2, 5, 10, 25, 50, 100]:
     for k in range(5, 105, 5):
         print '#' * 30
         print "K=%d" % k
-        result, eval_result = mondrian(data, k)
+        result, eval_result = mondrian(data, k, RELAX)
         data = copy.deepcopy(data_back)
         print "NCP %0.2f" % eval_result[0] + "%"
         print "Running time %0.2f" % eval_result[1] + " seconds"
@@ -58,7 +60,7 @@ def get_result_dataset(data, k=10, num_test=10):
         print "size of dataset %d" % pos
         for j in range(num_test):
             temp = random.sample(data, pos)
-            _, eval_result = mondrian(temp, k)
+            _, eval_result = mondrian(temp, k, RELAX)
             ncp += eval_result[0]
             rtime += eval_result[1]
             data = copy.deepcopy(data_back)
@@ -78,7 +80,7 @@ def get_result_qi(data, k=10):
     for i in reversed(range(1, num_data)):
         print '#' * 30
         print "Number of QI=%d" % i
-        _, eval_result = mondrian(data, k, i)
+        _, eval_result = mondrian(data, k, RELAX, i)
         data = copy.deepcopy(data_back)
         print "NCP %0.2f" % eval_result[0] + "%"
         print "Running time %0.2f" % eval_result[1] + " seconds"
@@ -88,12 +90,21 @@ if __name__ == '__main__':
     FLAG = ''
     LEN_ARGV = len(sys.argv)
     try:
-        DATA_SELECT = sys.argv[1]
-        FLAG = sys.argv[2]
+        MODEL = sys.argv[1]
+        DATA_SELECT = sys.argv[2]
+        FLAG = sys.argv[3]
     except IndexError:
         pass
-    GL_K = 10
+    INPUT_K = 10
     # read record
+    if MODEL == 's':
+        RELAX = False
+    else:
+        RELAX = True
+    if RELAX:
+        print "Relax Mondrian"
+    else:
+        print "Strict Mondrian"
     if DATA_SELECT == 'i':
         print "INFORMS data"
         DATA = read_informs()
@@ -106,18 +117,20 @@ if __name__ == '__main__':
         get_result_qi(DATA)
     elif FLAG == 'data':
         get_result_dataset(DATA)
-    elif FLAG == 'one':
-        if LEN_ARGV > 2:
-            GL_K = int(sys.argv[3])
-            get_result_one(DATA, GL_K)
-        else:
-            get_result_one(DATA)
     elif FLAG == '':
         get_result_one(DATA)
     else:
-        print "Usage: python anonymizer [a | i] [k | qi |data | one]"
-        print "a: adult dataset, 'i': INFORMS ataset"
-        print "k: varying k, qi: varying qi numbers, \
-               data: varying size of dataset, one: run only once"
+        try:
+            INPUT_K = int(FLAG)
+            get_result_one(DATA, INPUT_K)
+        except ValueError:
+            print "Usage: python anonymizer [r|s] [a | i] [k | qi | data]"
+            print "r: relax mondrian, s: strict mondrian"
+            print "a: adult dataset, i: INFORMS ataset"
+            print "k: varying k"
+            print "qi: varying qi numbers"
+            print "data: varying size of dataset"
+            print "example: python anonymizer a 10"
+            print "example: python anonymizer a k"
     # anonymized dataset is stored in result
     print "Finish Mondrian!!"
