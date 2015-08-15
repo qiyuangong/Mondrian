@@ -18,9 +18,9 @@ ATT_NAME = ['age', 'workcalss', 'final_weight', 'education',
             'education_num', 'marital_status', 'occupation', 'relationship',
             'race', 'sex', 'capital_gain', 'capital_loss', 'hours_per_week',
             'native_country', 'class']
-QI_INDEX = [0, 1, 3, 5, 8, 9, 13]
-IS_CAT = [False, True, True, True, True, True, True]
-SA_INDEX = 6
+QI_INDEX = [0, 1, 4, 5, 6, 8, 9, 13]
+IS_CAT = [False, True, False, True, True, True, True, True]
+SA_INDEX = -1
 __DEBUG = False
 
 

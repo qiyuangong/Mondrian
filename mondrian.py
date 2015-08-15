@@ -120,10 +120,12 @@ def frequency_set(partition, dim):
     return frequency
 
 
-def find_median(frequency):
+def find_median(partition, dim):
     """
     find the middle of the partition, return splitVal
     """
+    # use frequency set to get median
+    frequency = frequency_set(partition, dim)
     splitVal = ''
     nextVal = ''
     value_list = frequency.keys()
@@ -169,24 +171,22 @@ def anonymize_strict(partition):
         if dim == -1:
             print "Error: dim=-1"
             pdb.set_trace()
-        # use frequency set to get median
-        frequency = frequency_set(partition, dim)
-        (splitVal, nextVal) = find_median(frequency)
+        (splitVal, nextVal) = find_median(partition, dim)
         if splitVal == '':
             partition.allow[dim] = 0
             continue
         # split the group from median
         mean = QI_DICT[dim][splitVal]
-        left_high = partition.high[:]
-        right_low = partition.low[:]
-        left_high[dim] = mean
-        right_low[dim] = QI_DICT[dim][nextVal]
-        lhs = Partition([], partition.low, left_high)
-        rhs = Partition([], right_low, partition.high)
+        lhs_high = partition.high[:]
+        rhs_low = partition.low[:]
+        lhs_high[dim] = mean
+        rhs_low[dim] = QI_DICT[dim][nextVal]
+        lhs = Partition([], partition.low, lhs_high)
+        rhs = Partition([], rhs_low, partition.high)
         for record in partition.member:
             pos = QI_DICT[dim][record[dim]]
             if pos <= mean:
-                # lhs = [low, mean)
+                # lhs = [low, mean]
                 lhs.add_record(record, dim, pos)
             else:
                 # rhs = (mean, high]
@@ -216,18 +216,17 @@ def anonymize_relaxed(partition):
         print "Error: dim=-1"
         pdb.set_trace()
     # use frequency set to get median
-    frequency = frequency_set(partition, dim)
-    (splitVal, nextVal) = find_median(frequency)
+    (splitVal, nextVal) = find_median(partition, dim)
     if splitVal == '':
         print "Error: splitVal empty"
     # split the group from median
     mean = QI_DICT[dim][splitVal]
-    left_high = partition.high[:]
-    right_low = partition.low[:]
-    left_high[dim] = mean
-    right_low[dim] = QI_DICT[dim][nextVal]
-    lhs = Partition([], partition.low, left_high)
-    rhs = Partition([], right_low, partition.high)
+    lhs_high = partition.high[:]
+    rhs_low = partition.low[:]
+    lhs_high[dim] = mean
+    rhs_low[dim] = QI_DICT[dim][nextVal]
+    lhs = Partition([], partition.low, lhs_high)
+    rhs = Partition([], rhs_low, partition.high)
     mid_set = []
     for record in partition.member:
         pos = QI_DICT[dim][record[dim]]
@@ -320,14 +319,14 @@ def mondrian(data, k, relax=False, QI_num=-1):
     # generalization result and
     # evaluation information loss
     ncp = 0.0
-    dm = 0.0
+    dp = 0.0
     for partition in RESULT:
         rncp = 0.0
         for index in range(QI_LEN):
             rncp += get_normalized_width(partition, index)
         rncp *= len(partition)
         ncp += rncp
-        dm += len(partition) * len(partition)
+        dp += len(partition) ** 2
         for record in partition.member:
             for index in range(QI_LEN):
                 if isinstance(record[index], int):
@@ -345,9 +344,9 @@ def mondrian(data, k, relax=False, QI_num=-1):
     # ncp /= 10000
     if __DEBUG:
         from decimal import Decimal
-        print "DM=%.2E" % Decimal(str(dm))
+        print "Discernability Penalty=%.2E" % Decimal(str(dp))
         print "size of partitions=%d" % len(RESULT)
-        print "K=%d" % GL_K
+        print "K=%d" % k
         print "NCP = %.2f %%" % ncp
         # print[len(t) for t in RESULT]
         # pdb.set_trace()
