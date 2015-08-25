@@ -11,6 +11,7 @@ import sys, copy, random
 
 DATA_SELECT = 'a'
 RELAX = False
+INTUITIVE_ORDER = None
 
 
 def get_result_one(data, k=10):
@@ -19,7 +20,9 @@ def get_result_one(data, k=10):
     """
     print "K=%d" % k
     data_back = copy.deepcopy(data)
-    _, eval_result = mondrian(data, k, RELAX)
+    result, eval_result = mondrian(data, k, RELAX)
+    if DATA_SELECT == 'a':
+        result = covert_to_raw(result)
     data = copy.deepcopy(data_back)
     print "NCP %0.2f" % eval_result[0] + "%"
     print "Running time %0.2f" % eval_result[1] + " seconds"
@@ -35,6 +38,8 @@ def get_result_k(data):
         print '#' * 30
         print "K=%d" % k
         result, eval_result = mondrian(data, k, RELAX)
+        if DATA_SELECT == 'a':
+            result = covert_to_raw(result)
         data = copy.deepcopy(data_back)
         print "NCP %0.2f" % eval_result[0] + "%"
         print "Running time %0.2f" % eval_result[1] + " seconds"
@@ -60,7 +65,9 @@ def get_result_dataset(data, k=10, num_test=10):
         print "size of dataset %d" % pos
         for j in range(num_test):
             temp = random.sample(data, pos)
-            _, eval_result = mondrian(temp, k, RELAX)
+            result, eval_result = mondrian(temp, k, RELAX)
+            if DATA_SELECT == 'a':
+                result = covert_to_raw(result)
             ncp += eval_result[0]
             rtime += eval_result[1]
             data = copy.deepcopy(data_back)
@@ -80,10 +87,40 @@ def get_result_qi(data, k=10):
     for i in reversed(range(1, num_data)):
         print '#' * 30
         print "Number of QI=%d" % i
-        _, eval_result = mondrian(data, k, RELAX, i)
+        result, eval_result = mondrian(data, k, RELAX, i)
+        if DATA_SELECT == 'a':
+            result = covert_to_raw(result)
         data = copy.deepcopy(data_back)
         print "NCP %0.2f" % eval_result[0] + "%"
         print "Running time %0.2f" % eval_result[1] + " seconds"
+
+
+def covert_to_raw(result):
+    """
+    during preprocessing, categorical attrbutes are covert to
+    numeric attrbute using intutive order. This function will covert
+    this values back to they raw oder
+    """
+    covert_result = []
+    qi_len = len(INTUITIVE_ORDER)
+    for record in result:
+        covert_record = []
+        for i in range(qi_len):
+            if len(INTUITIVE_ORDER[i]) > 0:
+                vtemp = ''
+                if ',' in record[i]:
+                    temp = record[i].split(',')
+                    raw_list = []
+                    for j in range(int(temp[0]), int(temp[1]) + 1):
+                        raw_list.append(INTUITIVE_ORDER[i][j])
+                    vtemp = ';'.join(raw_list)
+                else:
+                    vtemp = INTUITIVE_ORDER[i][int(record[i])]
+                covert_record.append(vtemp)
+            else:
+                covert_record.append(record[i])
+        covert_result.append(covert_record)
+    return covert_result
 
 
 if __name__ == '__main__':
@@ -110,7 +147,10 @@ if __name__ == '__main__':
         DATA = read_informs()
     else:
         print "Adult data"
-        DATA = read_adult()
+        # INTUITIVE_ORDER is an intutive order for
+        # categorical attrbute. This order is produced
+        # by the reading (from dataset) order.
+        DATA, INTUITIVE_ORDER = read_adult()
     if FLAG == 'k':
         get_result_k(DATA)
     elif FLAG == 'qi':

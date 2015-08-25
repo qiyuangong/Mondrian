@@ -32,11 +32,13 @@ def read_data():
     data = []
     # oder categorical attributes in intuitive order
     # here, we use the appear number
+    intuitive_dict = []
     intuitive_order = []
     intuitive_number = []
     for i in range(QI_num):
-        intuitive_order.append(dict())
+        intuitive_dict.append(dict())
         intuitive_number.append(0)
+        intuitive_order.append(list())
     data_file = open('data/adult.data', 'rU')
     for line in data_file:
         line = line.strip()
@@ -52,16 +54,17 @@ def read_data():
             index = QI_INDEX[i]
             if IS_CAT[i]:
                 try:
-                    ltemp.append(intuitive_order[i][temp[index]])
+                    ltemp.append(intuitive_dict[i][temp[index]])
                 except KeyError:
-                    intuitive_order[i][temp[index]] = intuitive_number[i]
+                    intuitive_dict[i][temp[index]] = intuitive_number[i]
                     ltemp.append(intuitive_number[i])
                     intuitive_number[i] += 1
+                    intuitive_order[i].append(temp[index])
             else:
                 ltemp.append(int(temp[index]))
         ltemp.append(temp[SA_INDEX])
         data.append(ltemp)
-    return data
+    return data, intuitive_order
 
 
 # def read_data():
