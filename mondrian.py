@@ -327,7 +327,7 @@ def mondrian(data, k, relax=False, QI_num=-1):
         rncp *= len(partition)
         ncp += rncp
         dp += len(partition) ** 2
-        for record in partition.member:
+        for record in partition.member[:]:
             for index in range(QI_LEN):
                 if isinstance(record[index], int):
                     record[index] = '%d,%d' % (QI_ORDER[index][partition.low[index]],
