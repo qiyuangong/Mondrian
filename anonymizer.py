@@ -53,14 +53,14 @@ def get_result_dataset(data, k=10, num_test=10):
     data_back = copy.deepcopy(data)
     length = len(data_back)
     joint = 5000
-    dataset_num = length / joint
+    datasets = []
+    check_time = length / joint
     if length % joint == 0:
-        dataset_num += 1
-    for i in range(1, dataset_num + 1):
-        pos = i * joint
-        ncp = rtime = 0
-        if pos > length:
-            continue
+        check_time -= 1
+    for i in range(check_time):
+        datasets.append(joint * (i + 1))
+    datasets.append(length)
+    for pos in datasets:
         print '#' * 30
         print "size of dataset %d" % pos
         for j in range(num_test):

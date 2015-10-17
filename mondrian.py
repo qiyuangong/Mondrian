@@ -60,15 +60,12 @@ class Partition(object):
         add one record to member
         """
         self.member.append(record)
-        if index == -1:
-            index = QI_DICT[dim][record[dim]]
 
     def add_multiple_record(self, records, dim):
         """
         add multiple records (list) to partition
         """
         for record in records:
-            index = QI_DICT[dim][record[dim]]
             self.add_record(record, dim, index)
 
     def __len__(self):
@@ -152,7 +149,7 @@ def find_median(partition, dim):
         # which can be handle by mid_set
         # e.g.[1, 2, 3, 4, 4, 4, 4]
         nextVal = splitVal
-    return (splitVal, nextVal)
+    return (splitVal, nextVal, value_list[0], value_list[-1])
 
 
 def anonymize_strict(partition):
@@ -171,12 +168,14 @@ def anonymize_strict(partition):
         if dim == -1:
             print "Error: dim=-1"
             pdb.set_trace()
-        (splitVal, nextVal) = find_median(partition, dim)
+        (splitVal, nextVal, low, high) = find_median(partition, dim)
         if splitVal == '':
             partition.allow[dim] = 0
             continue
         # split the group from median
         mean = QI_DICT[dim][splitVal]
+        partition.low[dim] = QI_DICT[dim][low]
+        partition.high[dim] = QI_DICT[dim][high]
         lhs_high = partition.high[:]
         rhs_low = partition.low[:]
         lhs_high[dim] = mean
@@ -216,11 +215,14 @@ def anonymize_relaxed(partition):
         print "Error: dim=-1"
         pdb.set_trace()
     # use frequency set to get median
-    (splitVal, nextVal) = find_median(partition, dim)
+    # Update parent low and high
+    (splitVal, nextVal, low, high) = find_median(partition, dim)
     if splitVal == '':
         print "Error: splitVal empty"
     # split the group from median
     mean = QI_DICT[dim][splitVal]
+    partition.low[dim] = QI_DICT[dim][low]
+    partition.high[dim] = QI_DICT[dim][high]
     lhs_high = partition.high[:]
     rhs_low = partition.low[:]
     lhs_high[dim] = mean
@@ -330,11 +332,17 @@ def mondrian(data, k, relax=False, QI_num=-1):
         for record in partition.member[:]:
             for index in range(QI_LEN):
                 if isinstance(record[index], int):
-                    record[index] = '%d,%d' % (QI_ORDER[index][partition.low[index]],
-                                               QI_ORDER[index][partition.high[index]])
+                    if partition.low[index] == partition.high[index]:
+                        record[index] = '%d' % (QI_ORDER[index][partition.low[index]])
+                    else:
+                        record[index] = '%d,%d' % (QI_ORDER[index][partition.low[index]],
+                                                   QI_ORDER[index][partition.high[index]])
                 elif isinstance(record[index], str):
-                    record[index] = QI_ORDER[index][partition.low[index]] +\
-                        ',' + QI_ORDER[index][partition.high[index]]
+                    if partition.low[index] == partition.high[index]:
+                        record[index] = QI_ORDER[index][partition.low[index]]
+                    else:
+                        record[index] = QI_ORDER[index][partition.low[index]] +\
+                            ',' + QI_ORDER[index][partition.high[index]]
             result.append(record)
     # If you want to get NCP values instead of percentage
     # please remove next three lines
