@@ -55,7 +55,7 @@ class Partition(object):
         self.member = data[:]
         self.allow = [1] * QI_LEN
 
-    def add_record(self, record, dim, index=-1):
+    def add_record(self, record, dim):
         """
         add one record to member
         """
@@ -66,7 +66,7 @@ class Partition(object):
         add multiple records (list) to partition
         """
         for record in records:
-            self.add_record(record, dim, index)
+            self.add_record(record, dim)
 
     def __len__(self):
         """
@@ -131,7 +131,7 @@ def find_median(partition, dim):
     middle = total / 2
     if middle < GL_K:
         print "Error: size of group less than 2*K"
-        return ('', '')
+        return ('', '', '', '')
     index = 0
     split_index = 0
     for i, qi_value in enumerate(value_list):
@@ -169,13 +169,15 @@ def anonymize_strict(partition):
             print "Error: dim=-1"
             pdb.set_trace()
         (splitVal, nextVal, low, high) = find_median(partition, dim)
+        # Update parent low and high
+        if low is not '':
+            partition.low[dim] = QI_DICT[dim][low]
+            partition.high[dim] = QI_DICT[dim][high]
         if splitVal == '':
             partition.allow[dim] = 0
             continue
         # split the group from median
         mean = QI_DICT[dim][splitVal]
-        partition.low[dim] = QI_DICT[dim][low]
-        partition.high[dim] = QI_DICT[dim][high]
         lhs_high = partition.high[:]
         rhs_low = partition.low[:]
         lhs_high[dim] = mean
@@ -186,10 +188,10 @@ def anonymize_strict(partition):
             pos = QI_DICT[dim][record[dim]]
             if pos <= mean:
                 # lhs = [low, mean]
-                lhs.add_record(record, dim, pos)
+                lhs.add_record(record, dim)
             else:
                 # rhs = (mean, high]
-                rhs.add_record(record, dim, pos)
+                rhs.add_record(record, dim)
         # check is lhs and rhs satisfy k-anonymity
         if len(lhs) < GL_K or len(rhs) < GL_K:
             partition.allow[dim] = 0
@@ -215,14 +217,15 @@ def anonymize_relaxed(partition):
         print "Error: dim=-1"
         pdb.set_trace()
     # use frequency set to get median
-    # Update parent low and high
     (splitVal, nextVal, low, high) = find_median(partition, dim)
+    # Update parent low and high
+    if low is not '':
+        partition.low[dim] = QI_DICT[dim][low]
+        partition.high[dim] = QI_DICT[dim][high]
     if splitVal == '':
         print "Error: splitVal empty"
     # split the group from median
     mean = QI_DICT[dim][splitVal]
-    partition.low[dim] = QI_DICT[dim][low]
-    partition.high[dim] = QI_DICT[dim][high]
     lhs_high = partition.high[:]
     rhs_low = partition.low[:]
     lhs_high[dim] = mean
@@ -234,10 +237,10 @@ def anonymize_relaxed(partition):
         pos = QI_DICT[dim][record[dim]]
         if pos < mean:
             # lhs = [low, mean)
-            lhs.add_record(record, dim, pos)
+            lhs.add_record(record, dim)
         elif pos > mean:
             # rhs = (mean, high]
-            rhs.add_record(record, dim, pos)
+            rhs.add_record(record, dim)
         else:
             # mid_set keep the means
             mid_set.append(record)
