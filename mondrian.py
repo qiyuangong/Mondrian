@@ -129,9 +129,11 @@ def find_median(partition, dim):
     value_list.sort(cmp=cmp_str)
     total = sum(frequency.values())
     middle = total / 2
-    if middle < GL_K:
-        print "Error: size of group less than 2*K"
-        return ('', '', '', '')
+    if middle < GL_K or len(value_list) <= 1:
+        try:
+            return ('', '', value_list[0], value_list[-1])
+        except IndexError:
+            return ('', '', '', '')
     index = 0
     split_index = 0
     for i, qi_value in enumerate(value_list):
@@ -156,12 +158,11 @@ def anonymize_strict(partition):
     """
     recursively partition groups until not allowable
     """
-    if len(partition) < 2 * GL_K:
-        # can not split
-        RESULT.append(partition)
-        return
     allow_count = sum(partition.allow)
     # only run allow_count times
+    if allow_count == 0:
+        RESULT.append(partition)
+        return
     for index in range(allow_count):
         # choose attrubite from domain
         dim = choose_dimension(partition)
@@ -173,7 +174,8 @@ def anonymize_strict(partition):
         if low is not '':
             partition.low[dim] = QI_DICT[dim][low]
             partition.high[dim] = QI_DICT[dim][high]
-        if splitVal == '':
+        if splitVal == '' or splitVal == nextVal:
+            # cannot split
             partition.allow[dim] = 0
             continue
         # split the group from median
@@ -207,7 +209,7 @@ def anonymize_relaxed(partition):
     """
     recursively partition groups until not allowable
     """
-    if len(partition) < 2 * GL_K:
+    if sum(partition.allow) == 0:
         # can not split
         RESULT.append(partition)
         return
@@ -223,7 +225,10 @@ def anonymize_relaxed(partition):
         partition.low[dim] = QI_DICT[dim][low]
         partition.high[dim] = QI_DICT[dim][high]
     if splitVal == '':
-        print "Error: splitVal empty"
+        # cannot split
+        partition.allow[dim] = 0
+        anonymize_relaxed(partition)
+        return
     # split the group from median
     mean = QI_DICT[dim][splitVal]
     lhs_high = partition.high[:]
