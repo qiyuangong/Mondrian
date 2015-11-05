@@ -10,6 +10,9 @@ Researches on data privacy have lasted for more than ten years, lots of great pa
 I decided to make some effort. Hoping these open source repositories can help researchers and developers on data privacy (privacy preserving data publishing).
 
 ### Attention
+
+This Mondrian is the earliest Mondrian proposed in [1], which imposes an intuitive ordering on each attribute. So, there is no generalization hierarchies for categorical attributes. This operation brings lower information loss, but worse sematic results. **If you want the Mondrian based on generalization hierarchies, please turn to [Basic_Mondrian](https://github.com/qiyuangong/Basic_Mondrian).**
+
 I used **both adult and INFORMS** dataset in this implementation. For clarification, **we transform NCP to percentage**. This NCP percentage is computed by dividing NCP value with the number of values in dataset (also called GCP[4]). The range of NCP percentage is from 0 to 1, where 0 means no information loss, 1 means loses all information (more meaningful than raw NCP, which is sensitive to size of dataset). 
 
 One more thing!!! Mondrian has strict and relax models. (Most online implementations are in strict model.) Both mondrian split partition with binary split (let lhs and rhs denotes left part and right part). In strict mondrian, lhs has not intersection part with rhs. But in relaxed mondrian, the points in the middle are evenly divided between lhs and rhs to ensure |lhs| = |rhs| (+1 where |partition| is odd). So in relax model, the generalized result of lhs and rhs may have intersection. 
