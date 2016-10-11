@@ -301,15 +301,15 @@ def init(data, k, QI_num=-1):
 
 def mondrian(data, k, relax=False, QI_num=-1):
     """
-    main function of mondrian
-    data: dataset in list
+    Main function of mondrian, return result in tuple (result, (ncp, rtime)).
+    data: dataset in 2-dimensional array.
     k: k parameter for k-anonymity
-    QI_num: number of QI in dataset
+    QI_num: Default -1, which exclude the last column. Othewise, [0, 1,..., QI_num - 1]
+            will be anonymized, [QI_num,...] will be excluded.
     relax: determine use strict or relaxed mondrian,
-    both mondrian split partition with binary split.
+    Both mondrians split partition with binary split.
     In strict mondrian, lhs and rhs have not intersection.
     But in relaxed mondrian, lhs may be have intersection with rhs.
-    return result in list
     """
     init(data, k, QI_num)
     result = []

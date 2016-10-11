@@ -97,9 +97,11 @@ def get_result_qi(data, k=10):
 
 def covert_to_raw(result):
     """
-    during preprocessing, categorical attrbutes are covert to
+    During preprocessing, categorical attrbutes are covert to
     numeric attrbute using intutive order. This function will covert
-    this values back to they raw oder
+    these values back to they raw values. For example, Female and Male
+    may be coverted to 0 and 1 during anonymizaiton. Then we need to transform
+    them back to original values after anonymization.
     """
     covert_result = []
     qi_len = len(INTUITIVE_ORDER)
@@ -148,7 +150,7 @@ if __name__ == '__main__':
     else:
         print "Adult data"
         # INTUITIVE_ORDER is an intutive order for
-        # categorical attrbute. This order is produced
+        # categorical attrbutes. This order is produced
         # by the reading (from dataset) order.
         DATA, INTUITIVE_ORDER = read_adult()
     if FLAG == 'k':
