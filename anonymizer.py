@@ -133,7 +133,9 @@ if __name__ == '__main__':
         DATA_SELECT = sys.argv[2]
         FLAG = sys.argv[3]
     except IndexError:
-        pass
+        MODEL = 's'
+        DATA_SELECT = 'a'
+        FLAG = ''
     INPUT_K = 10
     # read record
     if MODEL == 's':

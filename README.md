@@ -29,14 +29,22 @@ My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your
 
 Parameters:
 
+	# Usage: python anonymizer [r|s] [a | i] [k | qi | data]
+	# r: relax mondrian, s: strict mondrian
+	# a: adult dataset, 'i': INFORMS ataset
+	# k: varying k, qi: varying qi numbers, data: varying size of dataset
 	# run Mondrian with adult data and default K(K=10)
 	python anonymizer.py 
 	
-	# run Mondrian with adult data K=20
-	python anonymized.py a 20
+	# run Strict Mondrian with adult data K=20
+	python anonymized.py s a 20
 
-	a: adult dataset, 'i': INFORMS ataset
-	k: varying k, qi: varying qi numbers, data: varying size of dataset, one: run only once
+	# run Relax Mondrian with INFORMS data K=11
+	python anonymized.py r i 1
+
+
+	# Evluating Strict Mondrian with k on adult data
+	python anonymized.py s a k
 
 
 ### For more information:
