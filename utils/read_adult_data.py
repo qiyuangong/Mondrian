@@ -27,6 +27,12 @@ __DEBUG = False
 def read_data():
     """
     read microda for *.txt and return read data
+
+    # Note that Mondrian can only handle numeric attribute
+    # So, categorical attributes should be transformed to numberic attributes
+    # before anonymization. For example, Male and Female shold be transformed
+    # to 0, 1 during pre-processing. Then, after anonymization, 0 and 1 should
+    # be transformed to Male and Female.
     """
     QI_num = len(QI_INDEX)
     data = []

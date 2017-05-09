@@ -7,11 +7,20 @@ run mondrian with given parameters
 from mondrian import mondrian
 from utils.read_adult_data import read_data as read_adult
 from utils.read_informs_data import read_data as read_informs
-import sys, copy, random
+import sys, copy, random, pdb
 
 DATA_SELECT = 'a'
 RELAX = False
 INTUITIVE_ORDER = None
+
+
+def write_to_file(result):
+    """
+    write the anonymized result to anonymized.data
+    """
+    with open("data/anonymized.data", "w") as output:
+        for r in result:
+            output.write(';'.join(r) + '\n')
 
 
 def get_result_one(data, k=10):
@@ -23,6 +32,11 @@ def get_result_one(data, k=10):
     result, eval_result = mondrian(data, k, RELAX)
     if DATA_SELECT == 'a':
         result = covert_to_raw(result)
+    else:
+        for r in result:
+            r[-1] = ','.join(r[-1])
+    # write to anonymized.out
+    write_to_file(result)
     data = copy.deepcopy(data_back)
     print "NCP %0.2f" % eval_result[0] + "%"
     print "Running time %0.2f" % eval_result[1] + " seconds"
@@ -115,13 +129,16 @@ def covert_to_raw(result):
                     raw_list = []
                     for j in range(int(temp[0]), int(temp[1]) + 1):
                         raw_list.append(INTUITIVE_ORDER[i][j])
-                    vtemp = ';'.join(raw_list)
+                    vtemp = ','.join(raw_list)
                 else:
                     vtemp = INTUITIVE_ORDER[i][int(record[i])]
                 covert_record.append(vtemp)
             else:
                 covert_record.append(record[i])
-        covert_result.append(covert_record)
+        if isinstance(record[-1], str):
+            covert_result.append(covert_record + [record[-1]])
+        else:
+            covert_result.append(covert_record + [','.join(record[-1])])
     return covert_result
 
 
@@ -131,11 +148,9 @@ if __name__ == '__main__':
     try:
         MODEL = sys.argv[1]
         DATA_SELECT = sys.argv[2]
-        FLAG = sys.argv[3]
     except IndexError:
         MODEL = 's'
         DATA_SELECT = 'a'
-        FLAG = ''
     INPUT_K = 10
     # read record
     if MODEL == 's':
@@ -155,6 +170,8 @@ if __name__ == '__main__':
         # categorical attrbutes. This order is produced
         # by the reading (from dataset) order.
         DATA, INTUITIVE_ORDER = read_adult()
+    if LEN_ARGV > 3:
+        FLAG = sys.argv[3]
     if FLAG == 'k':
         get_result_k(DATA)
     elif FLAG == 'qi':
