@@ -19,13 +19,50 @@ One more thing!!! Mondrian has strict and relax models. (Most online implementat
 
 The Final NCP of Mondrian on adult dataset is about 24.91% (relax) and 12.19% (strict), while 12.26% (relax) and 10.21% (strict) on INFORMS data (with K=10).
 
+### Basic idea of Mondrian
+#### First, what is k-anonymity? 
+Assuming your record is in this format: [QID, SA]. QID means quasi-identifier such as age and birthday, SA means sensitive information such as disease information. The basic idea of k-anonymity is `group in safety`, which means that you are safe if you are in a group of people whose QIDs are the same. Note nobody can infer your sensitive information (SA) from this group using QID, as shown in Fig. 1 (k=3 in 1(b) and 1(c)). If each of these group has at least k people, then this dataset satisfy k-anonymity. 
+
+<p align="center">
+<img src=https://cloud.githubusercontent.com/assets/3848789/25949050/c6a7e8ec-3688-11e7-933d-d5a991e6ef30.png width=750>
+</p>
+<p align="center">
+Figure 1. Anonymity, Privacy and Generalization
+</p>
+
+**But in practice, the raw datasets usually don't satisfy k-anonymity, as shown in Fig. 1(a).** So, we need some help from anonymization algorithm to transform the raw datasets to anonymized datasets. Mondrian is one of them, and it is based on generalization. I don't want to talk too much about generalization. In a word, generalization is a kind of transformation, which finds a result QID* that covers all QIDs (QID1~QID3 in Fig. 1 (b)). And it also brings information loss (distortion).
+
+#### How Mondrian anonymizes dataset?
+Here is the basic workflow of Mondrian:
+
+1. Partition the raw dataset into k-groups using kd-tree. k-groups means that each group contains at least k records.
+2. Generalization each k-group (Fig. 1(b)), such that each group has the same QID*.
+
+Why using kd-tree? Because it is fast and sufficient. 
+
+<p align="center">
+<img src=https://cloud.githubusercontent.com/assets/3848789/25949051/c6a87622-3688-11e7-8bd0-726f07245570.png width=750>
+</p>
+<p align="center">
+Figure 2. Basic workflow of Modnrian
+</p>
+
+<p align="center">
+<img src=https://cloud.githubusercontent.com/assets/3848789/25949052/c6ab3fce-3688-11e7-99ea-cde7bccd8684.png width=450>
+</p>
+<p align="center">
+Figure 3. kd-tree
+</p>
+
 
 ### Usage and Parameters:
-My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your Python environment is collectly installed. You can run Mondrian in following steps: 
+My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your Python environment is correctly installed. You can run Mondrian in following steps: 
 
 1) Download (or clone) the whole project. 
 
-2) Run "anonymized.py" in root dir with CLI.
+2) Run `anonymized.py` in root dir with CLI.
+
+3) Get the anonymized dataset from `data/anonymized.data`, if you didn't add `[k | qi | data]`.
 
 Parameters:
 
