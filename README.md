@@ -11,11 +11,11 @@ I decided to make some effort. Hoping these open source repositories can help re
 
 ### Attention
 
-This Mondrian is the earliest Mondrian proposed in [1], which imposes an intuitive ordering on each attribute. So, there is no generalization hierarchies for categorical attributes. This operation brings lower information loss, but worse sematic results. **If you want the Mondrian based on generalization hierarchies, please turn to [Basic_Mondrian](https://github.com/qiyuangong/Basic_Mondrian).**
+This Mondrian is the earliest Mondrian proposed in [1], which imposes an intuitive ordering on each attribute. So, there is no generalization hierarchies for categorical attributes. This operation brings lower information loss, but worse semantic results. **If you want the Mondrian based on generalization hierarchies, please turn to [Basic_Mondrian](https://github.com/qiyuangong/Basic_Mondrian).**
 
 I used **both adult and INFORMS** dataset in this implementation. For clarification, **we transform NCP to percentage**. This NCP percentage is computed by dividing NCP value with the number of values in dataset (also called GCP[4]). The range of NCP percentage is from 0 to 1, where 0 means no information loss, 1 means loses all information (more meaningful than raw NCP, which is sensitive to size of dataset). 
 
-One more thing!!! Mondrian has strict and relax models. (Most online implementations are in strict model.) Both mondrian split partition with binary split (let lhs and rhs denotes left part and right part). In strict mondrian, lhs has not intersection part with rhs. But in relaxed mondrian, the points in the middle are evenly divided between lhs and rhs to ensure |lhs| = |rhs| (+1 where |partition| is odd). So in relax model, the generalized result of lhs and rhs may have intersection. 
+One more thing!!! Mondrian has strict and relax models. (Most online implementations are in strict model.) Both Mondrian split partition with binary split (let lhs and rhs denotes left part and right part). In strict Mondrian, lhs has not intersection part with rhs. But in relaxed Mondrian, the points in the middle are evenly divided between lhs and rhs to ensure `|lhs| = |rhs|` (+1 where `|partition|` is odd). So in relax model, the generalized result of lhs and rhs may have intersection. 
 
 The Final NCP of Mondrian on adult dataset is about 24.91% (relax) and 12.19% (strict), while 12.26% (relax) and 10.21% (strict) on INFORMS data (with K=10).
 
@@ -93,8 +93,14 @@ Parameters:
 
 [4] G. Ghinita, P. Karras, P. Kalnis, N. Mamoulis. Fast data anonymization with low information loss. Proceedings of the 33rd international conference on Very large data bases, VLDB Endowment, 2007, 758-769
 
-==========================
-by Qiyuan Gong
-qiyuangong@gmail.com
+### Support
 
-2015-1-21
+- You can post bug reports and feature requests at the [Issue Page](https://github.com/qiyuangong/Mondrian/issues).
+- Contributions via [Pull request](https://github.com/qiyuangong/Mondrian/pulls) is welcome.
+- Also, you can contact me via [email](mailto:qiyuangong@gmail.com).
+
+==========================
+
+by [Qiyuan Gong](mailto:qiyuangong@gmail.com)
+
+2017-5-23

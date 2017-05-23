@@ -30,6 +30,7 @@ def get_result_one(data, k=10):
     print "K=%d" % k
     data_back = copy.deepcopy(data)
     result, eval_result = mondrian(data, k, RELAX)
+    # Convert numverical values backto categorical values if necessary
     if DATA_SELECT == 'a':
         result = covert_to_raw(result)
     else:
@@ -191,7 +192,7 @@ if __name__ == '__main__':
             print "k: varying k"
             print "qi: varying qi numbers"
             print "data: varying size of dataset"
-            print "example: python anonymizer a 10"
-            print "example: python anonymizer a k"
+            print "example: python anonymizer s a 10"
+            print "example: python anonymizer s a k"
     # anonymized dataset is stored in result
     print "Finish Mondrian!!"
