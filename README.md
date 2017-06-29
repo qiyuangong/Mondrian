@@ -74,14 +74,14 @@ Parameters:
 	python anonymizer.py 
 	
 	# run Strict Mondrian with adult data K=20
-	python anonymized.py s a 20
+	python anonymizer.py s a 20
 
 	# run Relax Mondrian with INFORMS data K=11
-	python anonymized.py r i 1
+	python anonymizer.py r i 1
 
 
 	# Evluating Strict Mondrian with k on adult data
-	python anonymized.py s a k
+	python anonymizer.py s a k
 
 
 ### For more information:
