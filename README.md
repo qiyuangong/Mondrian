@@ -1,8 +1,8 @@
-Mondrian
+Mondrian [![Build Status](https://travis-ci.org/qiyuangong/Mondrian.svg?branch=master)](https://travis-ci.org/qiyuangong/Mondrian)
 ===========================
 Mondrian is a Top-down greedy data anonymization algorithm for relational dataset, proposed by Kristen LeFevre in his papers[1]. To our knowledge, Mondrian is the fastest local recording algorithm, which preserve good data utility at the same time. Although LeFevre gave the pseudocode in his papers, the original source code is not available. You can find the third part Java implementation in Anonymization Toolbox[2].
 
-This repository is an **open source python implementation for Mondrian**. I implement this algorithm in python for further study.
+This repository is an **open source python implementation for Mondrian**.
 
 ### Motivation 
 Researches on data privacy have lasted for more than ten years, lots of great papers have been published. However, only a few open source projects are available on Internet [2-3], most open source projects are using algorithms proposed before 2004! Fewer projects have been used in real life. Worse more, most people even don't hear about it. Such a tragedy! 
@@ -66,7 +66,7 @@ My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your
 
 Parameters:
 
-	# Usage: python anonymizer [r|s] [a | i] [k | qi | data]
+	# Usage: python anonymizer.py [r|s] [a | i] [k | qi | data]
 	# r: relax mondrian, s: strict mondrian
 	# a: adult dataset, 'i': INFORMS ataset
 	# k: varying k, qi: varying qi numbers, data: varying size of dataset
