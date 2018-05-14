@@ -5,23 +5,23 @@ Mondrian is a Top-down greedy data anonymization algorithm for relational datase
 This repository is an **open source python implementation for Mondrian**.
 
 ### Motivation 
-Researches on data privacy have lasted for more than ten years, lots of great papers have been published. However, only a few open source projects are available on Internet [2-3], most open source projects are using algorithms proposed before 2004! Fewer projects have been used in real life. Worse more, most people even don't hear about it. Such a tragedy! 
+Researches on data privacy have lasted for more than ten years, lots of great papers have been published. However, only a few open source projects are available on Internet [2-3], most open source projects are using algorithms proposed before 2004! Fewer projects have been used in real life. Worse more, most people even don't hear about it. Such a tragedy!
 
-I decided to make some effort. Hoping these open source repositories can help researchers and developers on data privacy (privacy preserving data publishing).
+I decided to make some effort. Hoping these open source repositories can help researchers and developers on data privacy (privacy preserving data publishing, data anonymization).
 
 ### Attention
 
 This Mondrian is the earliest Mondrian proposed in [1], which imposes an intuitive ordering on each attribute. So, there is no generalization hierarchies for categorical attributes. This operation brings lower information loss, but worse semantic results. **If you want the Mondrian based on generalization hierarchies, please turn to [Basic_Mondrian](https://github.com/qiyuangong/Basic_Mondrian).**
 
-I used **both adult and INFORMS** dataset in this implementation. For clarification, **we transform NCP to percentage**. This NCP percentage is computed by dividing NCP value with the number of values in dataset (also called GCP[4]). The range of NCP percentage is from 0 to 1, where 0 means no information loss, 1 means loses all information (more meaningful than raw NCP, which is sensitive to size of dataset). 
+I used **both adult and INFORMS** dataset in this implementation. For clarification, **we transform NCP (Normalized Certainty Penalty) to percentage**. This NCP percentage is computed by dividing NCP value with the number of values in dataset (also called GCP (Global Certainty Penalty) [4]). The range of NCP percentage is from 0 to 1, where 0 means no information loss, 1 means loses all information (more meaningful than raw NCP, which is sensitive to size of dataset).
 
-One more thing!!! Mondrian has strict and relax models. (Most online implementations are in strict model.) Both Mondrian split partition with binary split (let lhs and rhs denotes left part and right part). In strict Mondrian, lhs has not intersection part with rhs. But in relaxed Mondrian, the points in the middle are evenly divided between lhs and rhs to ensure `|lhs| = |rhs|` (+1 where `|partition|` is odd). So in relax model, the generalized result of lhs and rhs may have intersection. 
+One more thing!!! Mondrian has strict and relax models. (Most online implementations are in strict model.) Both Mondrian split partition with binary split (let lhs and rhs denotes left part and right part). In strict Mondrian, lhs has not intersection part with rhs. But in relaxed Mondrian, the points in the middle are evenly divided between lhs and rhs to ensure `|lhs| = |rhs|` (+1 where `|partition|` is odd). So in relax model, the generalized result of lhs and rhs may have intersection.
 
-The Final NCP of Mondrian on adult dataset is about 24.91% (relax) and 12.19% (strict), while 12.26% (relax) and 10.21% (strict) on INFORMS data (with K=10).
+The Final NCP of Mondrian on [adult dataset](https://archive.ics.uci.edu/ml/datasets/adult) is about 24.91% (relax) and 12.19% (strict), while 12.26% (relax) and 10.21% (strict) on [INFORMS data](https://sites.google.com/site/informsdataminingcontest/) (with K=10).
 
 ### Basic idea of Mondrian
 #### First, what is k-anonymity? 
-Assuming your record is in this format: [QID, SA]. QID means quasi-identifier such as age and birthday, SA means sensitive information such as disease information. The basic idea of k-anonymity is `group in safety`, which means that you are safe if you are in a group of people whose QIDs are the same. Note nobody can infer your sensitive information (SA) from this group using QID, as shown in Fig. 1 (k=3 in 1(b) and 1(c)). If each of these group has at least k people, then this dataset satisfy k-anonymity. 
+Assuming your record is in this format: [QID, SA]. QID means quasi-identifier such as age and birthday, SA means sensitive information such as disease information. The basic idea of k-anonymity is `safety in group` (or safety in numbers [5]), which means that you are safe if you are in a group of people whose QIDs are the same. Note nobody can infer your sensitive information (SA) from this group using QID, as shown in Fig. 1 (k=3 in 1(b) and 1(c)). If each of these group has at least k people, then this dataset satisfy k-anonymity.
 
 <p align="center">
 <img src=https://cloud.githubusercontent.com/assets/3848789/25949050/c6a7e8ec-3688-11e7-933d-d5a991e6ef30.png width=750>
@@ -38,7 +38,7 @@ Here is the basic workflow of Mondrian:
 1. Partition the raw dataset into k-groups using kd-tree. k-groups means that each group contains at least k records.
 2. Generalization each k-group (Fig. 1(b)), such that each group has the same QID*.
 
-Why using kd-tree? Because it is fast and sufficient. 
+Why using kd-tree? Because it is fast, straight-forward and sufficient.
 
 <p align="center">
 <img src=https://cloud.githubusercontent.com/assets/3848789/25949051/c6a87622-3688-11e7-8bd0-726f07245570.png width=750>
@@ -56,9 +56,9 @@ Figure 3. kd-tree
 
 
 ### Usage and Parameters:
-My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your Python environment is correctly installed. You can run Mondrian in following steps: 
+My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your Python environment is correctly installed. You can run Mondrian in following steps:
 
-1) Download (or clone) the whole project. 
+1) Download (or clone) the whole project.
 
 2) Run `anonymized.py` in root dir with CLI.
 
@@ -70,8 +70,8 @@ Parameters:
 	# r: relax mondrian, s: strict mondrian
 	# a: adult dataset, 'i': INFORMS ataset
 	# k: varying k, qi: varying qi numbers, data: varying size of dataset
-	# run Mondrian with adult data and default K(K=10)
-	python anonymizer.py 
+	# run Mondrian with adult data and default K (K=10)
+	python anonymizer.py
 	
 	# run Strict Mondrian with adult data K=20
 	python anonymizer.py s a 20
@@ -92,6 +92,8 @@ Parameters:
 [3] [ARX- Powerful Data Anonymization](https://github.com/arx-deidentifier/arx)
 
 [4] G. Ghinita, P. Karras, P. Kalnis, N. Mamoulis. Fast data anonymization with low information loss. Proceedings of the 33rd international conference on Very large data bases, VLDB Endowment, 2007, 758-769
+
+[5] Y. He, J. F. Naughton, Anonymization of set-valued data via top-down, local generalization. Proceedings of VLDB, 2009, 2, 934-945
 
 ### Support
 
