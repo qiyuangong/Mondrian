@@ -43,8 +43,6 @@ class functionTest(unittest.TestCase):
                 [4, 3, 'hha'],
                 [4, 4, 'hha']]
         result, eval_r = mondrian(data, 2, False)
-        # print result
-        # print eval_r
         self.assertTrue(abs(eval_r[0] - 2300.0 / 108) < 0.05)
 
     def test2_mondrian_relax(self):

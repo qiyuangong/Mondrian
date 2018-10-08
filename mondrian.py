@@ -24,6 +24,7 @@ main module of mondrian
 import pdb
 import time
 from utils.utility import cmp_str
+from functools import cmp_to_key
 
 # warning all these variables should be re-inited, if
 # you want to run mondrian with different parameters
@@ -125,10 +126,10 @@ def find_median(partition, dim):
     frequency = frequency_set(partition, dim)
     splitVal = ''
     nextVal = ''
-    value_list = frequency.keys()
-    value_list.sort(cmp=cmp_str)
+    value_list = list(frequency.keys())
+    value_list.sort(key=cmp_to_key(cmp_str))
     total = sum(frequency.values())
-    middle = total / 2
+    middle = total // 2
     if middle < GL_K or len(value_list) <= 1:
         try:
             return ('', '', value_list[0], value_list[-1])
@@ -143,7 +144,7 @@ def find_median(partition, dim):
             split_index = i
             break
     else:
-        print "Error: cannot find splitVal"
+        print("Error: cannot find splitVal")
     try:
         nextVal = value_list[split_index + 1]
     except IndexError:
@@ -167,7 +168,7 @@ def anonymize_strict(partition):
         # choose attrubite from domain
         dim = choose_dimension(partition)
         if dim == -1:
-            print "Error: dim=-1"
+            print("Error: dim=-1")
             pdb.set_trace()
         (splitVal, nextVal, low, high) = find_median(partition, dim)
         # Update parent low and high
@@ -216,7 +217,7 @@ def anonymize_relaxed(partition):
     # choose attrubite from domain
     dim = choose_dimension(partition)
     if dim == -1:
-        print "Error: dim=-1"
+        print("Error: dim=-1")
         pdb.set_trace()
     # use frequency set to get median
     (splitVal, nextVal, low, high) = find_median(partition, dim)
@@ -253,7 +254,7 @@ def anonymize_relaxed(partition):
     # these records will be divided evenly
     # between lhs and rhs, such that
     # |lhs| = |rhs| (+1 if total size is odd)
-    half_size = len(partition) / 2
+    half_size = len(partition) // 2
     for i in range(half_size - len(lhs)):
         record = mid_set.pop()
         lhs.add_record(record, dim)
@@ -292,7 +293,7 @@ def init(data, k, QI_num=-1):
             att_values[i].add(record[i])
     for i in range(QI_LEN):
         value_list = list(att_values[i])
-        value_list.sort(cmp=cmp_str)
+        value_list.sort(key=cmp_to_key(cmp_str))
         QI_RANGE.append(float(value_list[-1]) - float(value_list[0]))
         QI_ORDER.append(list(value_list))
         for index, qi_value in enumerate(value_list):
@@ -360,10 +361,10 @@ def mondrian(data, k, relax=False, QI_num=-1):
     # ncp /= 10000
     if __DEBUG:
         from decimal import Decimal
-        print "Discernability Penalty=%.2E" % Decimal(str(dp))
-        print "size of partitions=%d" % len(RESULT)
-        print "K=%d" % k
-        print "NCP = %.2f %%" % ncp
+        print("Discernability Penalty=%.2E" % Decimal(str(dp)))
+        print("size of partitions=%d" % len(RESULT))
+        print("K=%d" % k)
+        print("NCP = %.2f %%" % ncp)
         # print[len(t) for t in RESULT]
         # pdb.set_trace()
     return (result, (ncp, rtime))

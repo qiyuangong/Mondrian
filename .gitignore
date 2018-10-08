@@ -2,6 +2,9 @@
 .DS_Store
 output/*
 
+*.bak
+.vs
+
 # C extensions
 *.so
 ftp

@@ -27,7 +27,7 @@ def get_result_one(data, k=10):
     """
     run mondrian for one time, with k=10
     """
-    print "K=%d" % k
+    print("K=%d" % k)
     data_back = copy.deepcopy(data)
     result, eval_result = mondrian(data, k, RELAX)
     # Convert numverical values backto categorical values if necessary
@@ -39,8 +39,8 @@ def get_result_one(data, k=10):
     # write to anonymized.out
     write_to_file(result)
     data = copy.deepcopy(data_back)
-    print "NCP %0.2f" % eval_result[0] + "%"
-    print "Running time %0.2f" % eval_result[1] + " seconds"
+    print("NCP %0.2f" % eval_result[0] + "%")
+    print("Running time %0.2f" % eval_result[1] + " seconds")
 
 
 def get_result_k(data):
@@ -50,14 +50,14 @@ def get_result_k(data):
     data_back = copy.deepcopy(data)
     # for k in [2, 5, 10, 25, 50, 100]:
     for k in range(5, 105, 5):
-        print '#' * 30
-        print "K=%d" % k
+        print('#' * 30)
+        print("K=%d" % k)
         result, eval_result = mondrian(data, k, RELAX)
         if DATA_SELECT == 'a':
             result = covert_to_raw(result)
         data = copy.deepcopy(data_back)
-        print "NCP %0.2f" % eval_result[0] + "%"
-        print "Running time %0.2f" % eval_result[1] + " seconds"
+        print("NCP %0.2f" % eval_result[0] + "%")
+        print("Running time %0.2f" % eval_result[1] + " seconds")
 
 
 def get_result_dataset(data, k=10, num_test=10):
@@ -76,8 +76,8 @@ def get_result_dataset(data, k=10, num_test=10):
         datasets.append(joint * (i + 1))
     datasets.append(length)
     for pos in datasets:
-        print '#' * 30
-        print "size of dataset %d" % pos
+        print('#' * 30)
+        print("size of dataset %d" % pos)
         for j in range(num_test):
             temp = random.sample(data, pos)
             result, eval_result = mondrian(temp, k, RELAX)
@@ -88,9 +88,9 @@ def get_result_dataset(data, k=10, num_test=10):
             data = copy.deepcopy(data_back)
         ncp /= num_test
         rtime /= num_test
-        print "Average NCP %0.2f" % ncp + "%"
-        print "Running time %0.2f" % rtime + " seconds"
-        print '#' * 30
+        print("Average NCP %0.2f" % ncp + "%")
+        print("Running time %0.2f" % rtime + " seconds")
+        print('#' * 30)
 
 
 def get_result_qi(data, k=10):
@@ -99,15 +99,15 @@ def get_result_qi(data, k=10):
     """
     data_back = copy.deepcopy(data)
     num_data = len(data[0])
-    for i in reversed(range(1, num_data)):
-        print '#' * 30
-        print "Number of QI=%d" % i
+    for i in reversed(list(range(1, num_data))):
+        print('#' * 30)
+        print("Number of QI=%d" % i)
         result, eval_result = mondrian(data, k, RELAX, i)
         if DATA_SELECT == 'a':
             result = covert_to_raw(result)
         data = copy.deepcopy(data_back)
-        print "NCP %0.2f" % eval_result[0] + "%"
-        print "Running time %0.2f" % eval_result[1] + " seconds"
+        print("NCP %0.2f" % eval_result[0] + "%")
+        print("Running time %0.2f" % eval_result[1] + " seconds")
 
 
 def covert_to_raw(result):
@@ -159,14 +159,14 @@ if __name__ == '__main__':
     else:
         RELAX = True
     if RELAX:
-        print "Relax Mondrian"
+        print("Relax Mondrian")
     else:
-        print "Strict Mondrian"
+        print("Strict Mondrian")
     if DATA_SELECT == 'i':
-        print "INFORMS data"
+        print("INFORMS data")
         DATA = read_informs()
     else:
-        print "Adult data"
+        print("Adult data")
         # INTUITIVE_ORDER is an intutive order for
         # categorical attrbutes. This order is produced
         # by the reading (from dataset) order.
@@ -186,13 +186,13 @@ if __name__ == '__main__':
             INPUT_K = int(FLAG)
             get_result_one(DATA, INPUT_K)
         except ValueError:
-            print "Usage: python anonymizer [r|s] [a | i] [k | qi | data]"
-            print "r: relax mondrian, s: strict mondrian"
-            print "a: adult dataset, i: INFORMS ataset"
-            print "k: varying k"
-            print "qi: varying qi numbers"
-            print "data: varying size of dataset"
-            print "example: python anonymizer s a 10"
-            print "example: python anonymizer s a k"
+            print("Usage: python anonymizer [r|s] [a | i] [k | qi | data]")
+            print("r: relax mondrian, s: strict mondrian")
+            print("a: adult dataset, i: INFORMS ataset")
+            print("k: varying k")
+            print("qi: varying qi numbers")
+            print("data: varying size of dataset")
+            print("example: python anonymizer s a 10")
+            print("example: python anonymizer s a k")
     # anonymized dataset is stored in result
-    print "Finish Mondrian!!"
+    print("Finish Mondrian!!")
