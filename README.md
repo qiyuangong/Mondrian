@@ -56,7 +56,7 @@ Figure 3. kd-tree
 
 
 ### Usage and Parameters:
-My Implementation is based on Python 2.7 (not Python 3.0). Please make sure your Python environment is correctly installed. You can run Mondrian in following steps:
+My Implementation is based on Python Python 3.0. Please make sure your Python environment is correctly installed. You can run Mondrian in following steps:
 
 1) Download (or clone) the whole project.
 
@@ -106,3 +106,12 @@ Parameters:
 by [Qiyuan Gong](mailto:qiyuangong@gmail.com)
 
 2017-5-23
+
+- The new version is rewritten with python3
+- Datetime is supportde with additional setting like category
+-----------------
+
+by [Liu Kun](@build2last)
+
+2018-10
+

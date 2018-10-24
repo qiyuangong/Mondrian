@@ -75,6 +75,8 @@ def get_result_dataset(data, k=10, num_test=10):
     for i in range(check_time):
         datasets.append(joint * (i + 1))
     datasets.append(length)
+    ncp = 0
+    rtime = 0
     for pos in datasets:
         print('#' * 30)
         print("size of dataset %d" % pos)
@@ -171,6 +173,7 @@ if __name__ == '__main__':
         # categorical attrbutes. This order is produced
         # by the reading (from dataset) order.
         DATA, INTUITIVE_ORDER = read_adult()
+        print(INTUITIVE_ORDER)
     if LEN_ARGV > 3:
         FLAG = sys.argv[3]
     if FLAG == 'k':

@@ -1,3 +1,4 @@
+# coding:utf-8
 """
 main module of mondrian
 """
@@ -23,7 +24,8 @@ main module of mondrian
 
 import pdb
 import time
-from utils.utility import cmp_str
+from datetime import datetime
+from utils.utility import cmp_value, value, merge
 from functools import cmp_to_key
 
 # warning all these variables should be re-inited, if
@@ -82,7 +84,9 @@ def get_normalized_width(partition, index):
     similar to NCP
     """
     d_order = QI_ORDER[index]
-    width = float(d_order[partition.high[index]]) - float(d_order[partition.low[index]])
+    width = value(d_order[partition.high[index]]) - value(d_order[partition.low[index]])
+    if width == QI_RANGE[index]:
+        return 1
     return width * 1.0 / QI_RANGE[index]
 
 
@@ -127,7 +131,7 @@ def find_median(partition, dim):
     splitVal = ''
     nextVal = ''
     value_list = list(frequency.keys())
-    value_list.sort(key=cmp_to_key(cmp_str))
+    value_list.sort(key=cmp_to_key(cmp_value))
     total = sum(frequency.values())
     middle = total // 2
     if middle < GL_K or len(value_list) <= 1:
@@ -293,8 +297,8 @@ def init(data, k, QI_num=-1):
             att_values[i].add(record[i])
     for i in range(QI_LEN):
         value_list = list(att_values[i])
-        value_list.sort(key=cmp_to_key(cmp_str))
-        QI_RANGE.append(float(value_list[-1]) - float(value_list[0]))
+        value_list.sort(key=cmp_to_key(cmp_value))
+        QI_RANGE.append(value(value_list[-1]) - value(value_list[0]))
         QI_ORDER.append(list(value_list))
         for index, qi_value in enumerate(value_list):
             QI_DICT[i][qi_value] = index
@@ -340,18 +344,9 @@ def mondrian(data, k, relax=False, QI_num=-1):
         dp += len(partition) ** 2
         for record in partition.member[:]:
             for index in range(QI_LEN):
-                if isinstance(record[index], int):
-                    if partition.low[index] == partition.high[index]:
-                        record[index] = '%d' % (QI_ORDER[index][partition.low[index]])
-                    else:
-                        record[index] = '%d,%d' % (QI_ORDER[index][partition.low[index]],
-                                                   QI_ORDER[index][partition.high[index]])
-                elif isinstance(record[index], str):
-                    if partition.low[index] == partition.high[index]:
-                        record[index] = QI_ORDER[index][partition.low[index]]
-                    else:
-                        record[index] = QI_ORDER[index][partition.low[index]] +\
-                            ',' + QI_ORDER[index][partition.high[index]]
+                # 这边可以来一个merge函数，负责将数值进行泛化
+                record[index] = merge(QI_ORDER[index][partition.low[index]],
+                                QI_ORDER[index][partition.high[index]])
             result.append(record)
     # If you want to get NCP values instead of percentage
     # please remove next three lines
