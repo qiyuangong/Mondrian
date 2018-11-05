@@ -112,7 +112,7 @@ def get_result_qi(data, k=10):
         print("Running time %0.2f" % eval_result[1] + " seconds")
 
 
-def covert_to_raw(result):
+def covert_to_raw(result, connect_str='~'):
     """
     During preprocessing, categorical attrbutes are covert to
     numeric attrbute using intutive order. This function will covert
@@ -127,12 +127,12 @@ def covert_to_raw(result):
         for i in range(qi_len):
             if len(INTUITIVE_ORDER[i]) > 0:
                 vtemp = ''
-                if ',' in record[i]:
-                    temp = record[i].split(',')
+                if connect_str in record[i]:
+                    temp = record[i].split(connect_str)
                     raw_list = []
                     for j in range(int(temp[0]), int(temp[1]) + 1):
                         raw_list.append(INTUITIVE_ORDER[i][j])
-                    vtemp = ','.join(raw_list)
+                    vtemp = connect_str.join(raw_list)
                 else:
                     vtemp = INTUITIVE_ORDER[i][int(record[i])]
                 covert_record.append(vtemp)
@@ -141,7 +141,7 @@ def covert_to_raw(result):
         if isinstance(record[-1], str):
             covert_result.append(covert_record + [record[-1]])
         else:
-            covert_result.append(covert_record + [','.join(record[-1])])
+            covert_result.append(covert_record + [connect_str.join(record[-1])])
     return covert_result
 
 
