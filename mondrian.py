@@ -344,7 +344,7 @@ def mondrian(data, k, relax=False, QI_num=-1):
         dp += len(partition) ** 2
         for record in partition.member[:]:
             for index in range(QI_LEN):
-                # 这边可以来一个merge函数，负责将数值进行泛化
+                # Better to use a merge function for values' generalization
                 record[index] = merge(QI_ORDER[index][partition.low[index]],
                                 QI_ORDER[index][partition.high[index]])
             result.append(record)
