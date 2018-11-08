@@ -8,7 +8,6 @@ date   : 2018-10
 '''
 
 from datetime import datetime
-from utils.utility import value
 
 
 __DEBUG = False
@@ -22,7 +21,7 @@ def read_csv(file_path,
         TIME_FORMAT_STR="%Y-%m-%d %H:%M:%S"
     ):
     """
-    read microda for *.txt and return read data
+    read microdata for *.txt and return read data
 
     # Note that Mondrian can only handle numeric attribute
     # So, categorical attributes should be transformed to numberic attributes
@@ -69,3 +68,4 @@ def read_csv(file_path,
             ltemp.append(temp[SA_INDEX])
             data.append(ltemp)
         return data, intuitive_order
+

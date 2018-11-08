@@ -5,6 +5,7 @@ public functions
 """
 
 from datetime import datetime
+import time
 
 def cmp(x, y):
     if x > y:
@@ -32,35 +33,39 @@ def cmp_value(element1, element2):
 
 
 def value(x):
-    '''返回支持加减运算的数值类型'''
+    '''Return the numeric type that supports addition and subtraction'''
     if isinstance(x, (int, float)):
         return float(x)
     elif isinstance(x, datetime):
-        return x.timestamp()
+        return time.mktime(x.timetuple())
+        # return x.timestamp() # not supported by python 2.7
     else:
-        return x
+        try:
+            return float(x)
+        except Exception as e:
+            return x
 
 
-def merge(x_left, x_right):
-    '''连接区间边界值作为泛化后的区间并以字符串的形式返回结果
+def merge_qi_value(x_left, x_right, connect_str='~'):
+    '''Connect the interval boundary value as a generalized interval and return the result as a string
     return:
-        x_left:string
+        result:string
     '''
     if isinstance(x_left, (int, float)):
         if x_left == x_right:
             result = '%d' % (x_left)
         else:
-            result = '%d~%d' % (x_left, x_right)
+            result = '%d%s%d' % (x_left, connect_str, x_right)
     elif isinstance(x_left, str):
         if x_left == x_right:
-            resutl = x_left
+            result = x_left
         else:
-            result = x_left + "~" + x_right
+            result = x_left + connect_str + x_right
     elif isinstance(x_left, datetime):
-        # 对日期进行泛化
+        # Generalize the datetime type value
         begin_date = x_left.strftime("%Y-%m-%d %H:%M:%S")
         end_date = x_right.strftime("%Y-%m-%d %H:%M:%S")
-        result = begin_date +'~'+ end_date
+        result = begin_date + connect_str + end_date
     return result
 
 
@@ -95,3 +100,4 @@ def covert_to_raw(result, intuitive_order, delimiter='~'):
         else:
             covert_result.append(covert_record + [delimiter.join(record[-1])])
     return covert_result
+

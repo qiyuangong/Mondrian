@@ -7,7 +7,7 @@ run mondrian with given parameters
 from mondrian import mondrian
 from utils.read_adult_data import read_data as read_adult
 from utils.read_informs_data import read_data as read_informs
-import sys, copy, random, pdb
+import sys, copy, random
 
 DATA_SELECT = 'a'
 RELAX = False
@@ -30,7 +30,7 @@ def get_result_one(data, k=10):
     print("K=%d" % k)
     data_back = copy.deepcopy(data)
     result, eval_result = mondrian(data, k, RELAX)
-    # Convert numverical values backto categorical values if necessary
+    # Convert numerical values back to categorical values if necessary
     if DATA_SELECT == 'a':
         result = covert_to_raw(result)
     else:
@@ -45,10 +45,9 @@ def get_result_one(data, k=10):
 
 def get_result_k(data):
     """
-    change k, whle fixing QD and size of dataset
+    change k, while fixing QD and size of data set
     """
     data_back = copy.deepcopy(data)
-    # for k in [2, 5, 10, 25, 50, 100]:
     for k in range(5, 105, 5):
         print('#' * 30)
         print("K=%d" % k)
@@ -62,8 +61,8 @@ def get_result_k(data):
 
 def get_result_dataset(data, k=10, num_test=10):
     """
-    fix k and QI, while changing size of dataset
-    num_test is the test nubmber.
+    fix k and QI, while changing size of data set
+    num_test is the test number.
     """
     data_back = copy.deepcopy(data)
     length = len(data_back)
@@ -97,7 +96,7 @@ def get_result_dataset(data, k=10, num_test=10):
 
 def get_result_qi(data, k=10):
     """
-    change nubmber of QI, whle fixing k and size of dataset
+    change number of QI, while fixing k and size of data set
     """
     data_back = copy.deepcopy(data)
     num_data = len(data[0])
@@ -114,10 +113,10 @@ def get_result_qi(data, k=10):
 
 def covert_to_raw(result, connect_str='~'):
     """
-    During preprocessing, categorical attrbutes are covert to
-    numeric attrbute using intutive order. This function will covert
+    During preprocessing, categorical attributes are covert to
+    numeric attribute using intuitive order. This function will covert
     these values back to they raw values. For example, Female and Male
-    may be coverted to 0 and 1 during anonymizaiton. Then we need to transform
+    may be converted to 0 and 1 during anonymizaiton. Then we need to transform
     them back to original values after anonymization.
     """
     covert_result = []
@@ -169,9 +168,9 @@ if __name__ == '__main__':
         DATA = read_informs()
     else:
         print("Adult data")
-        # INTUITIVE_ORDER is an intutive order for
-        # categorical attrbutes. This order is produced
-        # by the reading (from dataset) order.
+        # INTUITIVE_ORDER is an intuitive order for
+        # categorical attributes. This order is produced
+        # by the reading (from data set) order.
         DATA, INTUITIVE_ORDER = read_adult()
         print(INTUITIVE_ORDER)
     if LEN_ARGV > 3:
@@ -191,7 +190,7 @@ if __name__ == '__main__':
         except ValueError:
             print("Usage: python anonymizer [r|s] [a | i] [k | qi | data]")
             print("r: relax mondrian, s: strict mondrian")
-            print("a: adult dataset, i: INFORMS ataset")
+            print("a: adult dataset, i: INFORMS dataset")
             print("k: varying k")
             print("qi: varying qi numbers")
             print("data: varying size of dataset")
