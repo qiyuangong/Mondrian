@@ -2,6 +2,11 @@
 .DS_Store
 output/*
 
+data/*
+
+*.bak
+.vs
+
 # C extensions
 *.so
 ftp
@@ -21,9 +26,6 @@ lib
 lib64
 __pycache__
 
-# Installer logs
-pip-log.txt
-
 # Unit test / coverage reports
 .coverage
 .tox
@@ -38,3 +40,5 @@ nosetests.xml
 .pydevproject
 
 *.sublime-*
+
+*.csv

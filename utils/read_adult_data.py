@@ -1,20 +1,19 @@
 """
-read adult dataset
+read adult data set
 """
 
 # !/usr/bin/env python
 # coding=utf-8
 
-# Read data and read tree fuctions for INFORMS data
-# attributes ['age', 'workcalss', 'final_weight', 'education', 'education_num',
-# 'matrital_status', 'occupation', 'relationship', 'race', 'sex', 'capital_gain',
+# Read data and read tree functions for INFORMS data
+# attributes ['age', 'work_class', 'final_weight', 'education', 'education_num',
+# 'marital_status', 'occupation', 'relationship', 'race', 'sex', 'capital_gain',
 # 'capital_loss', 'hours_per_week', 'native_country', 'class']
-# QID ['age', 'workcalss', 'education', 'matrital_status', 'race', 'sex', 'native_country']
-# SA ['occopation']
+# QID ['age', 'work_class', 'education', 'marital_status', 'race', 'sex', 'native_country']
+# SA ['occupation']
 
-from utils.utility import cmp_str
 
-ATT_NAME = ['age', 'workcalss', 'final_weight', 'education',
+ATT_NAME = ['age', 'work_class', 'final_weight', 'education',
             'education_num', 'marital_status', 'occupation', 'relationship',
             'race', 'sex', 'capital_gain', 'capital_loss', 'hours_per_week',
             'native_country', 'class']
@@ -26,11 +25,11 @@ __DEBUG = False
 
 def read_data():
     """
-    read microda for *.txt and return read data
+    read microdata for *.txt and return read data
 
     # Note that Mondrian can only handle numeric attribute
-    # So, categorical attributes should be transformed to numberic attributes
-    # before anonymization. For example, Male and Female shold be transformed
+    # So, categorical attributes should be transformed to numeric attributes
+    # before anonymization. For example, Male and Female should be transformed
     # to 0, 1 during pre-processing. Then, after anonymization, 0 and 1 should
     # be transformed to Male and Female.
     """

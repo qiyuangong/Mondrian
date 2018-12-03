@@ -7,7 +7,7 @@ run mondrian with given parameters
 from mondrian import mondrian
 from utils.read_adult_data import read_data as read_adult
 from utils.read_informs_data import read_data as read_informs
-import sys, copy, random, pdb
+import sys, copy, random
 
 DATA_SELECT = 'a'
 RELAX = False
@@ -27,10 +27,10 @@ def get_result_one(data, k=10):
     """
     run mondrian for one time, with k=10
     """
-    print "K=%d" % k
+    print("K=%d" % k)
     data_back = copy.deepcopy(data)
     result, eval_result = mondrian(data, k, RELAX)
-    # Convert numverical values backto categorical values if necessary
+    # Convert numerical values back to categorical values if necessary
     if DATA_SELECT == 'a':
         result = covert_to_raw(result)
     else:
@@ -39,31 +39,30 @@ def get_result_one(data, k=10):
     # write to anonymized.out
     write_to_file(result)
     data = copy.deepcopy(data_back)
-    print "NCP %0.2f" % eval_result[0] + "%"
-    print "Running time %0.2f" % eval_result[1] + " seconds"
+    print("NCP %0.2f" % eval_result[0] + "%")
+    print("Running time %0.2f" % eval_result[1] + " seconds")
 
 
 def get_result_k(data):
     """
-    change k, whle fixing QD and size of dataset
+    change k, while fixing QD and size of data set
     """
     data_back = copy.deepcopy(data)
-    # for k in [2, 5, 10, 25, 50, 100]:
     for k in range(5, 105, 5):
-        print '#' * 30
-        print "K=%d" % k
+        print('#' * 30)
+        print("K=%d" % k)
         result, eval_result = mondrian(data, k, RELAX)
         if DATA_SELECT == 'a':
             result = covert_to_raw(result)
         data = copy.deepcopy(data_back)
-        print "NCP %0.2f" % eval_result[0] + "%"
-        print "Running time %0.2f" % eval_result[1] + " seconds"
+        print("NCP %0.2f" % eval_result[0] + "%")
+        print("Running time %0.2f" % eval_result[1] + " seconds")
 
 
 def get_result_dataset(data, k=10, num_test=10):
     """
-    fix k and QI, while changing size of dataset
-    num_test is the test nubmber.
+    fix k and QI, while changing size of data set
+    num_test is the test number.
     """
     data_back = copy.deepcopy(data)
     length = len(data_back)
@@ -75,9 +74,11 @@ def get_result_dataset(data, k=10, num_test=10):
     for i in range(check_time):
         datasets.append(joint * (i + 1))
     datasets.append(length)
+    ncp = 0
+    rtime = 0
     for pos in datasets:
-        print '#' * 30
-        print "size of dataset %d" % pos
+        print('#' * 30)
+        print("size of dataset %d" % pos)
         for j in range(num_test):
             temp = random.sample(data, pos)
             result, eval_result = mondrian(temp, k, RELAX)
@@ -88,34 +89,34 @@ def get_result_dataset(data, k=10, num_test=10):
             data = copy.deepcopy(data_back)
         ncp /= num_test
         rtime /= num_test
-        print "Average NCP %0.2f" % ncp + "%"
-        print "Running time %0.2f" % rtime + " seconds"
-        print '#' * 30
+        print("Average NCP %0.2f" % ncp + "%")
+        print("Running time %0.2f" % rtime + " seconds")
+        print('#' * 30)
 
 
 def get_result_qi(data, k=10):
     """
-    change nubmber of QI, whle fixing k and size of dataset
+    change number of QI, while fixing k and size of data set
     """
     data_back = copy.deepcopy(data)
     num_data = len(data[0])
-    for i in reversed(range(1, num_data)):
-        print '#' * 30
-        print "Number of QI=%d" % i
+    for i in reversed(list(range(1, num_data))):
+        print('#' * 30)
+        print("Number of QI=%d" % i)
         result, eval_result = mondrian(data, k, RELAX, i)
         if DATA_SELECT == 'a':
             result = covert_to_raw(result)
         data = copy.deepcopy(data_back)
-        print "NCP %0.2f" % eval_result[0] + "%"
-        print "Running time %0.2f" % eval_result[1] + " seconds"
+        print("NCP %0.2f" % eval_result[0] + "%")
+        print("Running time %0.2f" % eval_result[1] + " seconds")
 
 
-def covert_to_raw(result):
+def covert_to_raw(result, connect_str='~'):
     """
-    During preprocessing, categorical attrbutes are covert to
-    numeric attrbute using intutive order. This function will covert
+    During preprocessing, categorical attributes are covert to
+    numeric attribute using intuitive order. This function will covert
     these values back to they raw values. For example, Female and Male
-    may be coverted to 0 and 1 during anonymizaiton. Then we need to transform
+    may be converted to 0 and 1 during anonymizaiton. Then we need to transform
     them back to original values after anonymization.
     """
     covert_result = []
@@ -125,12 +126,12 @@ def covert_to_raw(result):
         for i in range(qi_len):
             if len(INTUITIVE_ORDER[i]) > 0:
                 vtemp = ''
-                if ',' in record[i]:
-                    temp = record[i].split(',')
+                if connect_str in record[i]:
+                    temp = record[i].split(connect_str)
                     raw_list = []
                     for j in range(int(temp[0]), int(temp[1]) + 1):
                         raw_list.append(INTUITIVE_ORDER[i][j])
-                    vtemp = ','.join(raw_list)
+                    vtemp = connect_str.join(raw_list)
                 else:
                     vtemp = INTUITIVE_ORDER[i][int(record[i])]
                 covert_record.append(vtemp)
@@ -139,7 +140,7 @@ def covert_to_raw(result):
         if isinstance(record[-1], str):
             covert_result.append(covert_record + [record[-1]])
         else:
-            covert_result.append(covert_record + [','.join(record[-1])])
+            covert_result.append(covert_record + [connect_str.join(record[-1])])
     return covert_result
 
 
@@ -159,18 +160,19 @@ if __name__ == '__main__':
     else:
         RELAX = True
     if RELAX:
-        print "Relax Mondrian"
+        print("Relax Mondrian")
     else:
-        print "Strict Mondrian"
+        print("Strict Mondrian")
     if DATA_SELECT == 'i':
-        print "INFORMS data"
+        print("INFORMS data")
         DATA = read_informs()
     else:
-        print "Adult data"
-        # INTUITIVE_ORDER is an intutive order for
-        # categorical attrbutes. This order is produced
-        # by the reading (from dataset) order.
+        print("Adult data")
+        # INTUITIVE_ORDER is an intuitive order for
+        # categorical attributes. This order is produced
+        # by the reading (from data set) order.
         DATA, INTUITIVE_ORDER = read_adult()
+        print(INTUITIVE_ORDER)
     if LEN_ARGV > 3:
         FLAG = sys.argv[3]
     if FLAG == 'k':
@@ -186,13 +188,13 @@ if __name__ == '__main__':
             INPUT_K = int(FLAG)
             get_result_one(DATA, INPUT_K)
         except ValueError:
-            print "Usage: python anonymizer [r|s] [a | i] [k | qi | data]"
-            print "r: relax mondrian, s: strict mondrian"
-            print "a: adult dataset, i: INFORMS ataset"
-            print "k: varying k"
-            print "qi: varying qi numbers"
-            print "data: varying size of dataset"
-            print "example: python anonymizer s a 10"
-            print "example: python anonymizer s a k"
+            print("Usage: python anonymizer [r|s] [a | i] [k | qi | data]")
+            print("r: relax mondrian, s: strict mondrian")
+            print("a: adult dataset, i: INFORMS dataset")
+            print("k: varying k")
+            print("qi: varying qi numbers")
+            print("data: varying size of dataset")
+            print("example: python anonymizer s a 10")
+            print("example: python anonymizer s a k")
     # anonymized dataset is stored in result
-    print "Finish Mondrian!!"
+    print("Finish Mondrian!!")
