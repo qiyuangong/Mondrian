@@ -4,7 +4,7 @@ Mondrian is a Top-down greedy data anonymization algorithm for relational datase
 
 This repository is an **open source python implementation for Mondrian**.
 
-### Motivation 
+### Motivation
 Researches on data privacy have lasted for more than ten years, lots of great papers have been published. However, only a few open source projects are available on Internet [2-3], most open source projects are using algorithms proposed before 2004! Fewer projects have been used in real life. Worse more, most people even don't hear about it. Such a tragedy!
 
 I decided to make some effort. Hoping these open source repositories can help researchers and developers on data privacy (privacy preserving data publishing, data anonymization).
@@ -20,7 +20,7 @@ One more thing!!! Mondrian has strict and relax models. (Most online implementat
 The Final NCP of Mondrian on [adult dataset](https://archive.ics.uci.edu/ml/datasets/adult) is about 24.91% (relax) and 12.19% (strict), while 12.26% (relax) and 10.21% (strict) on [INFORMS data](https://sites.google.com/site/informsdataminingcontest/) (with K=10).
 
 ### Basic idea of Mondrian
-#### First, what is k-anonymity? 
+#### First, what is k-anonymity?
 Assuming your record is in this format: [QID, SA]. QID means quasi-identifier such as age and birthday, SA means sensitive information such as disease information. The basic idea of k-anonymity is `safety in group` (or safety in numbers [5]), which means that you are safe if you are in a group of people whose QIDs are the same. Note nobody can infer your sensitive information (SA) from this group using QID, as shown in Fig. 1 (k=3 in 1(b) and 1(c)). If each of these group has at least k people, then this dataset satisfy k-anonymity.
 
 <p align="center">
@@ -68,11 +68,11 @@ Parameters:
 
 	# Usage: python anonymizer.py [r|s] [a | i] [k | qi | data]
 	# r: relax mondrian, s: strict mondrian
-	# a: adult dataset, 'i': INFORMS ataset
+	# a: adult dataset, 'i': INFORMS dataset
 	# k: varying k, qi: varying qi numbers, data: varying size of dataset
 	# run Mondrian with adult data and default K (K=10)
 	python anonymizer.py
-	
+
 	# run Strict Mondrian with adult data K=20
 	python anonymizer.py s a 20
 
@@ -111,4 +111,3 @@ by [Qiyuan Gong](mailto:qiyuangong@gmail.com)
 ### Contributor List 🏆
 * [Qiyuan Gong](mailto:qiyuangong@gmail.com)
 * [Liu Kun](https://github.com/build2last)
-
